@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    image: amazoncorretto:17-alpine-jdk
+    env_file:
+      - .env
+      - .env.local
+    networks:
+      - infra_net
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+    entrypoint: ['sh', '/app/entrypoint.sh']
+  db:
+    image: sameersbn/postgresql:12-20200524
+    ports:
+      - "5432:5432"
+    environment:
+      DB_NAME: tukita_db
+      DB_USER: db_user
+      DB_PASS: db_pass
+    networks:
+      - infra_net
+    volumes:
+      - db-storage:/var/lib/postgresql
+volumes:
+  db-storage:
+networks:
+  infra_net:

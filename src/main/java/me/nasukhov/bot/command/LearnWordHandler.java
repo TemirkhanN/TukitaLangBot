@@ -5,6 +5,9 @@ import me.nasukhov.bot.study.ProgressRepository;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.Word;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LearnWordHandler implements Handler {
     private final DictionaryRepository dictionary;
     private final ProgressRepository progressRepository;
@@ -17,7 +20,7 @@ public class LearnWordHandler implements Handler {
     @Override
     public void handle(Command command) {
         int lastLearnedWord = progressRepository.getLastLearnedWordId(command.channel());
-        int newLastLearnedWord = 0;
+        List<Integer> newWordsIds = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
         for (Word word : dictionary.getChunk(3, lastLearnedWord)) {
@@ -28,11 +31,11 @@ public class LearnWordHandler implements Handler {
             sb.append("\n");
             sb.append(word.description());
             sb.append("\n\n");
-            newLastLearnedWord = word.id();
+            newWordsIds.add(word.id());
         }
 
-        if (newLastLearnedWord != 0) {
-            progressRepository.setLastLearnedWord(command.channel(), newLastLearnedWord);
+        if (!newWordsIds.isEmpty()) {
+            progressRepository.setLastLearnedWords(command.channel(), newWordsIds);
         }
 
         command.channel().sendMessage(sb.toString());

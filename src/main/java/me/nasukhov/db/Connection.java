@@ -1,12 +1,6 @@
 package me.nasukhov.db;
 
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Map;
 
 public class Connection {
@@ -24,13 +18,11 @@ public class Connection {
 
     private Connection() {
         try {
-            Class.forName("org.sqlite.JDBC");
-            URL url = Thread.currentThread().getContextClassLoader().getResource("app.db");
-            if (url == null) {
-                throw new Exception("Database file not found in resources directory");
-            }
-            Path path = Paths.get(url.toURI());
-            db = DriverManager.getConnection("jdbc:sqlite:" + path);
+            String url = System.getenv("DATABASE_URL");
+            String username = System.getenv("DATABASE_USERNAME");
+            String password = System.getenv("DATABASE_PASSWORD");
+
+            db = DriverManager.getConnection(url, username, password);
         } catch (Exception e) {
             e.printStackTrace();
 
@@ -59,6 +51,19 @@ public class Connection {
             }
 
             boolean result = stmt.execute();
+            stmt.close();
+
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean executeQuery(String query) {
+        try {
+            Statement stmt = db.createStatement();
+
+            boolean result = stmt.execute(query);
             stmt.close();
 
             return result;
