@@ -8,6 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class Telegram extends TelegramLongPollingBot {
+    final static String ID_PREFIX = "tg_";
+
     private final Bot bot;
 
     // @Sensitive
@@ -29,7 +31,7 @@ public class Telegram extends TelegramLongPollingBot {
             return;
         }
 
-        bot.handle(new Command(msg.getText(), getSender(msg)));
+        bot.handle(new Command(msg.getText(), getChannel(msg)));
     }
 
     @Override
@@ -48,9 +50,9 @@ public class Telegram extends TelegramLongPollingBot {
         super.onRegister();
     }
 
-    private Channel getSender(Message msg) {
+    private Channel getChannel(Message msg) {
         Long chatId = msg.getChatId();
 
-        return new Channel("tg" + chatId, new TelegramOutput(chatId, this));
+        return new Channel(ID_PREFIX + chatId, new TelegramOutput(chatId, this));
     }
 }

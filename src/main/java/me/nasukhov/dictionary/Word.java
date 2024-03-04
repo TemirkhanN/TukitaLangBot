@@ -1,4 +1,4 @@
 package me.nasukhov.dictionary;
 
-public record Word(String word, String translation, String description, PartOfSpeech pos, String context) {
+public record Word(int id, String word, String translation, String description, PartOfSpeech pos, String context) {
 }
