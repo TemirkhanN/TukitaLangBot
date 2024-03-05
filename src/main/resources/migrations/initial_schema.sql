@@ -22,3 +22,20 @@ CREATE TABLE IF NOT EXISTS questions(
     answer   VARCHAR(255),
     variants TEXT
 );
+
+CREATE TABLE IF NOT EXISTS ch_questions (
+    id UUID PRIMARY KEY,
+    question_id INT,
+    channel_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ch_question_replies (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(32),
+    channel_id VARCHAR(100),
+    question_id UUID,
+    is_correct BOOLEAN,
+    CONSTRAINT unique_channel_user_question_idx UNIQUE (channel_id, user_id, question_id)
+);
+CREATE INDEX IF NOT EXISTS idx_channel_user ON ch_question_replies (channel_id, user_id, question_id)

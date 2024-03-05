@@ -2,5 +2,5 @@ package me.nasukhov.study;
 
 import java.util.List;
 
-public record Question(String text, String answer, List<String> variants) {
+record Question(int id, String text, String answer, List<String> variants) {
 }

@@ -30,6 +30,15 @@ public class Connection {
         }
     }
 
+    public ResultSet fetchByQuery(String query) {
+        try {
+            Statement stmt = db.createStatement();
+
+            return stmt.executeQuery(query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public ResultSet fetchByQuery(String query, Map<Integer, Object> params) {
         try {
             PreparedStatement stmt = db.prepareStatement(query);
@@ -43,31 +52,33 @@ public class Connection {
         }
     }
 
-    public boolean executeQuery(String query, Map<Integer, Object> params) {
+    public void executeQuery(String query, Map<Integer, Object> params) {
         try {
             PreparedStatement stmt = db.prepareStatement(query);
             for (Map.Entry<Integer, Object> entry : params.entrySet()) {
                 stmt.setObject(entry.getKey(), entry.getValue());
             }
 
-            boolean result = stmt.execute();
+            stmt.execute();
             stmt.close();
 
-            return result;
         } catch (SQLException e) {
+            // TODO
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
-    public boolean executeQuery(String query) {
+    public void executeQuery(String query) {
         try {
             Statement stmt = db.createStatement();
 
             boolean result = stmt.execute(query);
             stmt.close();
-
-            return result;
         } catch (SQLException e) {
+            // TODO
+            e.printStackTrace();
+
             throw new RuntimeException(e);
         }
     }

@@ -1,11 +1,9 @@
 package me.nasukhov.bot;
 
-import me.nasukhov.bot.command.Handler;
-import me.nasukhov.bot.command.Inflector;
-import me.nasukhov.bot.command.LearnWordHandler;
-import me.nasukhov.bot.command.TranslateWordHandler;
-import me.nasukhov.bot.study.ProgressRepository;
+import me.nasukhov.bot.command.*;
+import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.dictionary.DictionaryRepository;
+import me.nasukhov.study.QuestionRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +17,11 @@ public class Bot {
 
         DictionaryRepository dictionary = new DictionaryRepository();
         ProgressRepository progressRepository = new ProgressRepository();
+        QuestionRepository questionRepository = new QuestionRepository();
 
         handlers.put(TranslateWordHandler.class.getName(), new TranslateWordHandler());
         handlers.put(LearnWordHandler.class.getName(), new LearnWordHandler(dictionary, progressRepository));
+        handlers.put(QuestionHandler.class.getName(), new QuestionHandler(questionRepository));
     }
 
     public String getName() {

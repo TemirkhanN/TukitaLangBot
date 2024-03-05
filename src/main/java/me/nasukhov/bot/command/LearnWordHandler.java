@@ -1,7 +1,7 @@
 package me.nasukhov.bot.command;
 
 import me.nasukhov.bot.Command;
-import me.nasukhov.bot.study.ProgressRepository;
+import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.Word;
 
@@ -34,10 +34,12 @@ public class LearnWordHandler implements Handler {
             newWordsIds.add(word.id());
         }
 
-        if (!newWordsIds.isEmpty()) {
-            progressRepository.setLastLearnedWords(command.channel(), newWordsIds);
+        if (sb.isEmpty()) {
+            return;
         }
 
-        command.channel().sendMessage(sb.toString());
+        progressRepository.setLastLearnedWords(command.channel(), newWordsIds);
+
+        command.reply(sb.toString());
     }
 }

@@ -1,4 +1,4 @@
-package me.nasukhov.bot.study;
+package me.nasukhov.study;
 
 import me.nasukhov.bot.Channel;
 import me.nasukhov.db.Connection;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ProgressRepository {
-
     private final Connection db;
 
     public ProgressRepository() {

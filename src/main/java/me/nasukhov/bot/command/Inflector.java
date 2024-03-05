@@ -10,6 +10,11 @@ public class Inflector {
             return LearnWordHandler.class.getName();
         }
 
+        // TODO think about encapsulating canHandle instead of using inflector
+        if (Objects.equals(command.input(), "/ask") || command.input().startsWith(QuestionHandler.Id)) {
+            return QuestionHandler.class.getName();
+        }
+
         // TODO stub
         return TranslateWordHandler.class.getName();
     }

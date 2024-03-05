@@ -3,6 +3,7 @@ package me.nasukhov.bot.bridge;
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.Command;
 import me.nasukhov.bot.Channel;
+import me.nasukhov.bot.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -22,16 +23,31 @@ public class Telegram extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (!update.hasMessage()) {
-            return;
+        String input;
+        Long chatId;
+        Long userId;
+        String name;
+        if (update.hasCallbackQuery()) {
+            input = update.getCallbackQuery().getData();
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+            userId = update.getCallbackQuery().getFrom().getId();
+            name = update.getCallbackQuery().getFrom().getFirstName();
+        } else {
+            if (!update.hasMessage()) {
+                return;
+            }
+
+            Message msg = update.getMessage();
+            if (!msg.hasText()) {
+                return;
+            }
+            input = msg.getText();
+            chatId = msg.getChatId();
+            userId = msg.getFrom().getId();
+            name = msg.getFrom().getFirstName();
         }
 
-        Message msg = update.getMessage();
-        if (!msg.hasText()) {
-            return;
-        }
-
-        bot.handle(new Command(msg.getText(), getChannel(msg)));
+        bot.handle(new Command(input, getChannel(chatId), getSender(userId, name)));
     }
 
     @Override
@@ -50,9 +66,11 @@ public class Telegram extends TelegramLongPollingBot {
         super.onRegister();
     }
 
-    private Channel getChannel(Message msg) {
-        Long chatId = msg.getChatId();
-
+    private Channel getChannel(Long chatId) {
         return new Channel(ID_PREFIX + chatId, new TelegramOutput(chatId, this));
+    }
+
+    private User getSender(Long userId, String name) {
+        return new User(String.valueOf(userId), name);
     }
 }

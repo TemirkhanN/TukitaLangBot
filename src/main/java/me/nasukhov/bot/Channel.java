@@ -1,5 +1,7 @@
 package me.nasukhov.bot;
 
+import java.util.Map;
+
 public class Channel {
     public final String id;
     private final Output output;
@@ -11,5 +13,9 @@ public class Channel {
 
     public void sendMessage(String message) {
         output.write(message);
+    }
+
+    public void sendQuestion(String question, Map<String, String> possibleReplies) {
+        output.write(question, possibleReplies);
     }
 }
