@@ -25,3 +25,8 @@ tasks.register('run', JavaExec) {
     main = 'me.nasukhov.Main'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+tasks.register('generateQuestions', JavaExec) {
+    main = 'me.nasukhov.study.GenerateQuestion'
+    classpath = sourceSets.main.runtimeClasspath
+}
