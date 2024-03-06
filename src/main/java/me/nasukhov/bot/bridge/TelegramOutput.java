@@ -51,15 +51,17 @@ public class TelegramOutput implements Output {
     private InlineKeyboardMarkup createOptions(Map<String, String> options) {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
         for (Map.Entry<String, String> entry : options.entrySet()) {
             InlineKeyboardButton button1 = new InlineKeyboardButton();
             button1.setText(entry.getKey());
             // allows only 64bytes
             button1.setCallbackData(entry.getValue());
+
+            // One button per line
+            List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button1);
+            rowsInline.add(rowInline);
         }
-        rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);
 

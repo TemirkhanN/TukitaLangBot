@@ -7,9 +7,12 @@ import java.util.*;
 
 // TODO there are dubious-meaning words in dictionary which may produce incorrect results. Like Гӏунщи
 public class GenerateQuestion {
-    private static int MAX = 10000;
-    private static String QUESTION_TRANSLATE_FROM_NATIVE = "Как перевести \"%s\" на русский?";
-    private static String QUESTION_TRANSLATE_TO_NATIVE = "Как перевести \"%s\" на тукитинский?";
+    private static int MAX_WORDS = 10000;
+
+    private static int REPLY_VARIANTS_QUANTITY = 3;
+
+    private static String QUESTION_TRANSLATE_FROM_NATIVE = "Как перевести \"%s\"?";
+    private static String QUESTION_TRANSLATE_TO_NATIVE = "Как перевести \"%s\"?";
 
     private final DictionaryRepository dictionary;
     private final QuestionRepository questionRepository;
@@ -27,14 +30,14 @@ public class GenerateQuestion {
     }
 
     public void run() {
-        List<Word> words = dictionary.getChunk(MAX, 0);
+        List<Word> words = dictionary.getChunk(MAX_WORDS, 0);
 
         for (Word word: words) {
             List<String> fromNativeVariants = new ArrayList<>();
             List<String> toNativeVariants = new ArrayList<>();
             fromNativeVariants.add(word.translation());
             toNativeVariants.add(word.word());
-            for (Word wrongAnswer: getRandom(3, words)) {
+            for (Word wrongAnswer: getRandomFromList(REPLY_VARIANTS_QUANTITY, words)) {
                 fromNativeVariants.add(wrongAnswer.translation());
                 toNativeVariants.add(wrongAnswer.word());
             }
@@ -56,7 +59,7 @@ public class GenerateQuestion {
         }
     }
 
-    private List<Word> getRandom(int quantity, List<Word> words) {
+    private List<Word> getRandomFromList(int quantity, List<Word> words) {
         int lastEntryPosition = words.size() - 1;
 
         List<Word> result = new ArrayList<>();
