@@ -3,7 +3,8 @@ Compiled by Patimat Magomedgadzhieva and Michail Daniel.
 
 
 TODO
-- 2 buttons/options on 1 line. 3 or more doesn't fit
-- difficulty level
-- pronunciation reference
-- interesting facts(laragliri, ladiril rukya and etc.)
+- [ ] Configure deployment with alpha-test invitation-token
+- [x] 2 buttons/options on 1 line. 3 or more doesn't fit(each option comes on new line)
+- [ ] difficulty level
+- [ ] pronunciation reference
+- [ ] interesting facts(laragliri, ladiril rukya and etc.)
