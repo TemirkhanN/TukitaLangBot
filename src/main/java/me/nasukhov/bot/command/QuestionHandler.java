@@ -19,7 +19,7 @@ public class QuestionHandler implements Handler {
 
     @Override
     public void handle(Command command) {
-        if (command.input().equals("/ask")) {
+        if (command.input().startsWith("/ask")) {
             handleAsk(command);
 
             return;
