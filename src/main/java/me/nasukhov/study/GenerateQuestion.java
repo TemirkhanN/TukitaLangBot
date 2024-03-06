@@ -5,7 +5,6 @@ import me.nasukhov.dictionary.Word;
 
 import java.util.*;
 
-// TODO there are dubious-meaning words in dictionary which may produce incorrect results. Like Гӏунщи
 public class GenerateQuestion {
     private static int MAX_WORDS = 10000;
 
@@ -32,12 +31,12 @@ public class GenerateQuestion {
     public void run() {
         List<Word> words = dictionary.getChunk(MAX_WORDS, 0);
 
-        for (Word word: words) {
+        for (Word word : words) {
             List<String> fromNativeVariants = new ArrayList<>();
             List<String> toNativeVariants = new ArrayList<>();
             fromNativeVariants.add(word.translation());
             toNativeVariants.add(word.word());
-            for (Word wrongAnswer: getRandomFromList(REPLY_VARIANTS_QUANTITY, words)) {
+            for (Word wrongAnswer : getRandomFromList(REPLY_VARIANTS_QUANTITY, words, word)) {
                 fromNativeVariants.add(wrongAnswer.translation());
                 toNativeVariants.add(wrongAnswer.word());
             }
@@ -59,13 +58,22 @@ public class GenerateQuestion {
         }
     }
 
-    private List<Word> getRandomFromList(int quantity, List<Word> words) {
+    private List<Word> getRandomFromList(int quantity, List<Word> words, Word excludeMeaningsFromWord) {
         int lastEntryPosition = words.size() - 1;
 
         List<Word> result = new ArrayList<>();
-        while (--quantity > 0) {
-            result.add(words.get(random.nextInt(lastEntryPosition)));
-        }
+        do {
+            Word randomWord = words.get(random.nextInt(lastEntryPosition));
+
+            boolean intersectsWithWord = randomWord.word().equals(excludeMeaningsFromWord.word());
+            boolean intersectsWithMeaning = randomWord.translation().equals(excludeMeaningsFromWord.translation());
+
+            if (intersectsWithWord || intersectsWithMeaning) {
+                continue;
+            }
+
+            result.add(randomWord);
+        } while (result.size() != quantity);
 
         return result;
     }
