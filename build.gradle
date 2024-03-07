@@ -26,6 +26,11 @@ tasks.register('run', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('importDictionary', JavaExec) {
+    main = 'me.nasukhov.dictionary.ImportDictionary'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('generateQuestions', JavaExec) {
     main = 'me.nasukhov.study.GenerateQuestion'
     classpath = sourceSets.main.runtimeClasspath

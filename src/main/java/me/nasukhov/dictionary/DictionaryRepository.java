@@ -17,7 +17,7 @@ public class DictionaryRepository {
 
     public List<Word> getByTranslation(String translation) {
         Map<Integer, Object> params = new HashMap<>();
-        params.put(1, canonizeText(translation));
+        params.put(1, Word.canonize(translation));
 
         ResultSet result = db.fetchByQuery("SELECT * FROM dictionary WHERE translation=?", params);
 
@@ -56,37 +56,21 @@ public class DictionaryRepository {
         return matches;
     }
 
-    private void loadFromCsv() {
-        /*
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream is = classloader.getResourceAsStream("dictionary.csv");
-
-        boolean headline = true;
-        Integer index = 0;
-        try (CSVReader csvReader = new CSVReader(new InputStreamReader(is))) {
-            String[] columns = null;
-            while ((columns = csvReader.readNext()) != null) {
-                // skipping columns definition row
-                if (headline) {
-                    headline = false;
-                    continue;
-                }
-
-                Word word = new Word(canonizeText(columns[3]), canonizeText(columns[1]), columns[13], PartOfSpeech.fromValue(columns[8]), columns[14]);
-                words.add(index, word);
-                // TODO There are duplicates overlap in both indexes...
-                wordIndex.put(word.word(), index);
-                translationIndex.put(word.translation(), index);
-                ++index;
+    public void add(List<Word> words) {
+        // This will take a while but it's intentional. I don't want to play around with db layer and batching.
+        words.forEach(word -> {
+            if (word.id != 0) {
+                throw new RuntimeException("Dictionary can add only new entries. Updating existing entries is prohibited");
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        */
-    }
-
-    private String canonizeText(String text) {
-        return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+            Map<Integer, Object> params = new HashMap<>() {{
+                put(1, word.word);
+                put(2, word.translation);
+                put(3, word.pos.toString());
+                put(4, word.description);
+                put(5, word.context);
+            }};
+            db.executeQuery("INSERT INTO dictionary(word, translation, partOfSpeech, description, context VALUES(?,?,?,?,?,?)", params);
+        });
     }
 
     private Word mapData(ResultSet data) {

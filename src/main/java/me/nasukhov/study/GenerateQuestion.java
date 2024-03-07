@@ -6,12 +6,12 @@ import me.nasukhov.dictionary.Word;
 import java.util.*;
 
 public class GenerateQuestion {
-    private static int MAX_WORDS = 10000;
+    private static final int MAX_WORDS = 10000;
 
-    private static int REPLY_VARIANTS_QUANTITY = 3;
+    private static final int REPLY_VARIANTS_QUANTITY = 3;
 
-    private static String QUESTION_TRANSLATE_FROM_NATIVE = "Как перевести \"%s\"?";
-    private static String QUESTION_TRANSLATE_TO_NATIVE = "Как перевести \"%s\"?";
+    private static final String QUESTION_TRANSLATE_FROM_NATIVE = "Как перевести \"%s\"?";
+    private static final String QUESTION_TRANSLATE_TO_NATIVE = "Как перевести \"%s\"?";
 
     private final DictionaryRepository dictionary;
     private final QuestionRepository questionRepository;
@@ -34,25 +34,25 @@ public class GenerateQuestion {
         for (Word word : words) {
             List<String> fromNativeVariants = new ArrayList<>();
             List<String> toNativeVariants = new ArrayList<>();
-            fromNativeVariants.add(word.translation());
-            toNativeVariants.add(word.word());
+            fromNativeVariants.add(word.translation);
+            toNativeVariants.add(word.word);
             for (Word wrongAnswer : getRandomFromList(REPLY_VARIANTS_QUANTITY, words, word)) {
-                fromNativeVariants.add(wrongAnswer.translation());
-                toNativeVariants.add(wrongAnswer.word());
+                fromNativeVariants.add(wrongAnswer.translation);
+                toNativeVariants.add(wrongAnswer.word);
             }
 
             Collections.shuffle(fromNativeVariants);
             Collections.shuffle(toNativeVariants);
 
             questionRepository.create(
-                    String.format(QUESTION_TRANSLATE_FROM_NATIVE, word.word()),
-                    word.translation(),
+                    String.format(QUESTION_TRANSLATE_FROM_NATIVE, word.word),
+                    word.translation,
                     fromNativeVariants
             );
 
             questionRepository.create(
-                    String.format(QUESTION_TRANSLATE_TO_NATIVE, word.translation()),
-                    word.word(),
+                    String.format(QUESTION_TRANSLATE_TO_NATIVE, word.translation),
+                    word.word,
                     toNativeVariants
             );
         }
@@ -65,8 +65,8 @@ public class GenerateQuestion {
         do {
             Word randomWord = words.get(random.nextInt(lastEntryPosition));
 
-            boolean intersectsWithWord = randomWord.word().equals(excludeMeaningsFromWord.word());
-            boolean intersectsWithMeaning = randomWord.translation().equals(excludeMeaningsFromWord.translation());
+            boolean intersectsWithWord = randomWord.word.equals(excludeMeaningsFromWord.word);
+            boolean intersectsWithMeaning = randomWord.translation.equals(excludeMeaningsFromWord.translation);
 
             if (intersectsWithWord || intersectsWithMeaning) {
                 continue;

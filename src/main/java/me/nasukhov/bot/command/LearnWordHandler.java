@@ -24,14 +24,14 @@ public class LearnWordHandler implements Handler {
 
         StringBuilder sb = new StringBuilder();
         for (Word word : dictionary.getChunk(3, lastLearnedWord)) {
-            System.out.println(word.description());
-            sb.append(word.word());
+            System.out.println(word.description);
+            sb.append(word.word);
             sb.append(" - ");
-            sb.append(word.translation());
+            sb.append(word.translation);
             sb.append("\n");
-            sb.append(word.description());
+            sb.append(word.description);
             sb.append("\n\n");
-            newWordsIds.add(word.id());
+            newWordsIds.add(word.id);
         }
 
         if (sb.isEmpty()) {
