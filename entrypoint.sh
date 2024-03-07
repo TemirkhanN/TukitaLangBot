@@ -3,4 +3,5 @@
 cd /app
 
 ./gradlew build
+./gradlew update
 ./gradlew run

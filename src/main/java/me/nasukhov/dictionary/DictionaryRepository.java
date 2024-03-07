@@ -69,7 +69,7 @@ public class DictionaryRepository {
                 put(4, word.description);
                 put(5, word.context);
             }};
-            db.executeQuery("INSERT INTO dictionary(word, translation, partOfSpeech, description, context VALUES(?,?,?,?,?,?)", params);
+            db.executeQuery("INSERT INTO dictionary(word, translation, part_of_speech, description, context) VALUES(?,?,?,?,?)", params);
         });
     }
 

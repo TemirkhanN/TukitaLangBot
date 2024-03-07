@@ -18,10 +18,6 @@ public class GenerateQuestion {
 
     private final Random random;
 
-    public static void main(String[] args) {
-        new GenerateQuestion(new DictionaryRepository(), new QuestionRepository()).run();
-    }
-
     public GenerateQuestion(DictionaryRepository dictionaryRepository, QuestionRepository questionRepository) {
         dictionary = dictionaryRepository;
         this.questionRepository = questionRepository;

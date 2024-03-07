@@ -3,6 +3,7 @@ version: '3.8'
 services:
   app:
     image: amazoncorretto:17-alpine-jdk
+    restart: always
     env_file:
       - .env
       - .env.local

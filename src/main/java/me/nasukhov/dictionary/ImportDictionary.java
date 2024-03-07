@@ -9,14 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportDictionary {
-    public static void main(String[] args) {
+    private final DictionaryRepository storage;
+
+    public ImportDictionary(DictionaryRepository dictionaryRepository) {
+        storage = dictionaryRepository;
+    }
+
+    public void run() {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream is = classloader.getResourceAsStream("dictionary.csv");
         if (is == null) {
             throw new RuntimeException("Could not load dictionary resource");
         }
-
-        DictionaryRepository storage = new DictionaryRepository();
 
         boolean headline = true;
         List<Word> words = new ArrayList<>();
