@@ -5,11 +5,10 @@ services:
     image: amazoncorretto:17-alpine-jdk
     restart: always
     environment:
-      BOT_TKT_TG_TOKEN: ${BOT_TKT_TG_TOKEN}
       TG_BOT_TOKEN: ${BOT_TKT_TG_TOKEN}
       DATABASE_URL: "jdbc:postgresql://db:5432/${BOT_TKT_DB_NAME}"
-      DATABASE_USERNAME: ${BOT_TKT_DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${BOT_TKT_DATABASE_PASSWORD}
+      DATABASE_USERNAME: ${BOT_TKT_DB_USER}
+      DATABASE_PASSWORD: ${BOT_TKT_DB_PASS}
     networks:
       - infra_net
     depends_on:
