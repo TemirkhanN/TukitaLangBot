@@ -7,7 +7,7 @@ services:
       - .env
       - .env.local
     environment:
-      DATABASE_URL: "jdbc:postgresql://db:${BOT_TKT_DB_PORT}/${BOT_TKT_DB_NAME}"
+      DATABASE_URL: "jdbc:postgresql://db:5432/${BOT_TKT_DB_NAME}"
       DATABASE_USERNAME: ${BOT_TKT_DB_USER}
       DATABASE_PASSWORD: ${BOT_TKT_DB_PASS}
     networks:
