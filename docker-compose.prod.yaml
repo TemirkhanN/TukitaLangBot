@@ -25,6 +25,7 @@ services:
       - DB_NAME=${BOT_TKT_DB_NAME}
       - DB_USER=${BOT_TKT_DATABASE_USERNAME}
       - DB_PASS=${BOT_TKT_DATABASE_PASSWORD}
+      - TG_BOT_TOKEN=${BOT_TKT_TG_BOT_TOKEN}
     networks:
       - infra_net
     volumes:
