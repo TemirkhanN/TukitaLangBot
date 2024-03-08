@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       TG_BOT_TOKEN: ${BOT_TKT_TG_TOKEN}
-      DATABASE_URL: "jdbc:postgresql://db:5432/${BOT_TKT_DB_NAME}"
+      DATABASE_URL: "jdbc:postgresql://db:${BOT_TKT_DB_PORT}/${BOT_TKT_DB_NAME}"
       DATABASE_USERNAME: ${BOT_TKT_DB_USER}
       DATABASE_PASSWORD: ${BOT_TKT_DB_PASS}
     networks:
@@ -19,7 +19,7 @@ services:
   db:
     image: sameersbn/postgresql:12-20200524
     ports:
-      - "5432:5432"
+      - "${BOT_TKT_DB_PORT}:5432"
     environment:
       - DB_NAME=${BOT_TKT_DB_NAME}
       - DB_USER=${BOT_TKT_DATABASE_USERNAME}
