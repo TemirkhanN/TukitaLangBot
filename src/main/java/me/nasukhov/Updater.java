@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 // TODO this is more of first-time bootstrap rather than migrator
 public class Updater {
+    private static final ServiceLocator serviceLocator = new ServiceLocator();
+
     public static void main(String[] args) {
         Connection db = Connection.getInstance();
         ResultSet result = db.fetchByQuery("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'application_version')");
@@ -24,10 +26,10 @@ public class Updater {
             if (!isAlreadyUpdated) {
                 db.executeQuery(getResourceContent("migrations/initial_schema.sql"));
 
-                DictionaryRepository dictionary = new DictionaryRepository();
+                DictionaryRepository dictionary = serviceLocator.locate(DictionaryRepository.class);
                 new ImportDictionary(dictionary).run();
 
-                QuestionRepository questionRepository = new QuestionRepository();
+                QuestionRepository questionRepository = serviceLocator.locate(QuestionRepository.class);
                 new GenerateQuestion(dictionary, questionRepository).run();
             }
             result.close();

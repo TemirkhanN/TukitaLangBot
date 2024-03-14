@@ -5,8 +5,11 @@ import me.nasukhov.bot.Command;
 import me.nasukhov.bot.Channel;
 import me.nasukhov.bot.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Telegram extends TelegramLongPollingBot {
     final static String ID_PREFIX = "tg_";
@@ -19,6 +22,18 @@ public class Telegram extends TelegramLongPollingBot {
     public Telegram(String token, Bot bot) {
         this.bot = bot;
         botToken = token;
+    }
+
+    public void run() {
+        try {
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(this);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO
+            e.printStackTrace();
+        }
     }
 
     @Override
