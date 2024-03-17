@@ -1,10 +1,9 @@
 package me.nasukhov.study;
 
 import me.nasukhov.bot.Channel;
+import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,18 +19,14 @@ public class ProgressRepository {
             put(1, by.id);
         }};
 
-        try {
-            ResultSet result = db.fetchByQuery("SELECT word_id FROM learned_words WHERE channel_id=? ORDER BY learned_at DESC LIMIT 1", params);
-            int wordId = 0;
-            if (result.next()) {
-                wordId = result.getInt("word_id");
-            }
-            result.close();
-
-            return wordId;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        Collection result = db.fetchByQuery("SELECT word_id FROM learned_words WHERE channel_id=? ORDER BY learned_at DESC LIMIT 1", params);
+        int wordId = 0;
+        if (result.next()) {
+            wordId = result.getCurrentEntryProp("word_id");
         }
+        result.free();
+
+        return wordId;
     }
 
     public void setLastLearnedWords(Channel by, List<Integer> wordIds) {

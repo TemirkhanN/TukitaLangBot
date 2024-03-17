@@ -1,10 +1,8 @@
 package me.nasukhov.study;
 
+import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
-import javax.validation.constraints.NotNull;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class QuestionRepository {
@@ -41,96 +39,84 @@ public class QuestionRepository {
     }
 
     public boolean hasReplyInChannel(String userId, String channelId, UUID channelQuestionId) {
-        try {
-            Map<Integer, Object> params = new HashMap<>();
-            params.put(1, channelId);
-            params.put(2, userId);
-            params.put(3, channelQuestionId);
-            // TODO logically, questions are less frequent and thus should lead index in query
-            ResultSet result = db.fetchByQuery("" +
-                            "SELECT id FROM ch_question_replies WHERE channel_id=? AND user_id=? AND question_id=? LIMIT 1",
-                    params
-            );
+        Map<Integer, Object> params = new HashMap<>();
+        params.put(1, channelId);
+        params.put(2, userId);
+        params.put(3, channelQuestionId);
+        // TODO logically, questions are less frequent and thus should lead index in the query
+        Collection result = db.fetchByQuery("" +
+                        "SELECT id FROM ch_question_replies WHERE channel_id=? AND user_id=? AND question_id=? LIMIT 1",
+                params
+        );
 
-            boolean hasReply = result.next();
-            result.close();
+        boolean hasReply = result.next();
 
-            return hasReply;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        result.free();
+
+        return hasReply;
     }
 
-    public ChannelQuestion findQuestionInChannel(UUID channelQuestionId) {
-        try {
-            ResultSet result = db.fetchByQuery("" +
-                            "SELECT q.* FROM questions q" +
-                            " INNER JOIN ch_questions cq ON cq.question_id=q.id" +
-                            " WHERE cq.id=?" +
-                            " LIMIT 1",
-                    new HashMap<>() {{
-                        put(1, channelQuestionId);
-                    }}
-            );
+    public Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
+        Collection result = db.fetchByQuery("" +
+                        "SELECT q.* FROM questions q" +
+                        " INNER JOIN ch_questions cq ON cq.question_id=q.id" +
+                        " WHERE cq.id=?" +
+                        " LIMIT 1",
+                new HashMap<>() {{
+                    put(1, channelQuestionId);
+                }}
+        );
 
-            if (!result.next()) {
-                return null;
-            }
-
-            Question question = mapData(result);
-            result.close();
-
-            return new ChannelQuestion(channelQuestionId, question);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (!result.next()) {
+            return Optional.empty();
         }
+
+        Question question = mapData(result);
+        result.free();
+
+        return Optional.of(new ChannelQuestion(channelQuestionId, question));
     }
 
-    @NotNull
-    public ChannelQuestion createRandomForChannel(String channelId) {
+    public Optional<ChannelQuestion> createRandomForChannel(String channelId) {
         UUID uuid = UUID.randomUUID();
 
-        try {
-            ResultSet result = db.fetchByQuery(
-                    "SELECT q.* FROM questions q" +
-                            " LEFT JOIN ch_questions cq" +
-                            " ON cq.question_id=q.id AND cq.channel_id=?" +
-                            " WHERE cq.id IS NULL" +
-                            " ORDER BY RANDOM()" +
-                            " LIMIT 1",
-                    new HashMap<>() {{
-                        put(1, channelId);
-                    }}
-            );
-            if (!result.next()) {
-                // TODO
-                throw new RuntimeException("No more unanswered questions left for channel");
-            }
-            Question question = mapData(result);
-            result.close();
+        Collection result = db.fetchByQuery(
+                "SELECT q.* FROM questions q" +
+                        " LEFT JOIN ch_questions cq" +
+                        " ON cq.question_id=q.id AND cq.channel_id=?" +
+                        " WHERE cq.id IS NULL" +
+                        " ORDER BY RANDOM()" +
+                        " LIMIT 1",
+                new HashMap<>() {{
+                    put(1, channelId);
+                }}
+        );
 
-            db.executeQuery(
-                    "INSERT INTO ch_questions(id, channel_id, question_id, created_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP)",
-                    new HashMap<>() {{
-                        put(1, uuid);
-                        put(2, channelId);
-                        put(3, question.id());
-                    }}
-            );
-
-            return new ChannelQuestion(uuid, question);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (!result.next()) {
+            return Optional.empty();
         }
+
+        Question question = mapData(result);
+        result.free();
+
+        db.executeQuery(
+                "INSERT INTO ch_questions(id, channel_id, question_id, created_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP)",
+                new HashMap<>() {{
+                    put(1, uuid);
+                    put(2, channelId);
+                    put(3, question.id());
+                }}
+        );
+
+        return Optional.of(new ChannelQuestion(uuid, question));
     }
 
-    @NotNull
-    private Question mapData(ResultSet result) throws SQLException {
+    private Question mapData(Collection result) {
         return new Question(
-                result.getInt("id"),
-                result.getString("text"),
-                result.getString("answer"),
-                Arrays.asList(result.getString("variants").split(VARIANTS_DELIMITER))
+                result.getCurrentEntryProp("id"),
+                result.getCurrentEntryProp("text"),
+                result.getCurrentEntryProp("answer"),
+                Arrays.asList(((String) result.getCurrentEntryProp("variants")).split(VARIANTS_DELIMITER))
         );
     }
 }

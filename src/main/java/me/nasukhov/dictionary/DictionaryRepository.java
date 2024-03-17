@@ -1,5 +1,6 @@
 package me.nasukhov.dictionary;
 
+import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
 import java.sql.*;
@@ -19,18 +20,13 @@ public class DictionaryRepository {
         Map<Integer, Object> params = new HashMap<>();
         params.put(1, Word.canonize(translation));
 
-        ResultSet result = db.fetchByQuery("SELECT * FROM dictionary WHERE translation=?", params);
+        Collection result = db.fetchByQuery("SELECT * FROM dictionary WHERE translation=?", params);
 
         List<Word> matches = new ArrayList<>();
-        try {
-            while (result.next()) {
-                matches.add(mapData(result));
-            }
-            result.close();
-        } catch (SQLException e) {
-            // TODO normal abstraction
-            throw new RuntimeException(e);
+        while (result.next()) {
+            matches.add(mapData(result));
         }
+        result.free();
 
         return matches;
     }
@@ -40,18 +36,14 @@ public class DictionaryRepository {
         params.put(1, startingFromId);
         params.put(2, length);
 
-        ResultSet result = db.fetchByQuery("SELECT * FROM dictionary WHERE id>? ORDER BY id ASC LIMIT ?", params);
+        Collection result = db.fetchByQuery("SELECT * FROM dictionary WHERE id>? ORDER BY id ASC LIMIT ?", params);
 
         List<Word> matches = new ArrayList<>();
-        try {
-            while (result.next()) {
-                matches.add(mapData(result));
-            }
-            result.close();
-        } catch (SQLException e) {
-            // TODO normal abstraction
-            throw new RuntimeException(e);
+        while (result.next()) {
+            matches.add(mapData(result));
         }
+
+        result.free();
 
         return matches;
     }
@@ -73,18 +65,14 @@ public class DictionaryRepository {
         });
     }
 
-    private Word mapData(ResultSet data) {
-        try {
-            return new Word(
-                    data.getInt("id"),
-                    data.getString("word"),
-                    data.getString("translation"),
-                    data.getString("description"),
-                    PartOfSpeech.fromValue(data.getString("part_of_speech")),
-                    data.getString("context")
-            );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private Word mapData(Collection data) {
+        return new Word(
+                data.getCurrentEntryProp("id"),
+                data.getCurrentEntryProp("word"),
+                data.getCurrentEntryProp("translation"),
+                data.getCurrentEntryProp("description"),
+                PartOfSpeech.fromValue(data.getCurrentEntryProp("part_of_speech")),
+                data.getCurrentEntryProp("context")
+        );
     }
 }

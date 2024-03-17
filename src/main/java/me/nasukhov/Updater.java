@@ -9,8 +9,6 @@ import me.nasukhov.study.QuestionRepository;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 // TODO this is more of first-time bootstrap rather than migrator
@@ -19,23 +17,18 @@ public class Updater {
 
     public static void main(String[] args) {
         Connection db = Connection.getInstance();
-        ResultSet result = db.fetchByQuery("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'application_version')");
 
-        try {
-            boolean isAlreadyUpdated = result.next() && result.getBoolean(1);
-            if (!isAlreadyUpdated) {
-                db.executeQuery(getResourceContent("migrations/initial_schema.sql"));
-
-                DictionaryRepository dictionary = serviceLocator.locate(DictionaryRepository.class);
-                new ImportDictionary(dictionary).run();
-
-                QuestionRepository questionRepository = serviceLocator.locate(QuestionRepository.class);
-                new GenerateQuestion(dictionary, questionRepository).run();
-            }
-            result.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        boolean isAlreadyUpdated = db.tableExists("application_version");
+        if (isAlreadyUpdated) {
+            return;
         }
+        db.executeQuery(getResourceContent("migrations/initial_schema.sql"));
+
+        DictionaryRepository dictionary = serviceLocator.locate(DictionaryRepository.class);
+        new ImportDictionary(dictionary).run();
+
+        QuestionRepository questionRepository = serviceLocator.locate(QuestionRepository.class);
+        new GenerateQuestion(dictionary, questionRepository).run();
     }
 
     private static String getResourceContent(String resource) {

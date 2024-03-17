@@ -6,12 +6,14 @@ import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.QuestionRepository;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class QuestionHandler implements Handler {
     public static final String Id = "qh";
-    private static String ANSWER_CORRECT = "%s отвечает правильно на вопрос «%s»";
-    private static String ANSWER_INCORRECT = "%s допускает ошибку при ответе на вопрос «%s»";
+    private static final String ANSWER_CORRECT = "%s отвечает правильно на вопрос «%s»";
+    private static final String ANSWER_INCORRECT = "%s допускает ошибку при ответе на вопрос «%s»";
+    private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
     private final QuestionRepository questionRepository;
     public QuestionHandler(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
@@ -34,7 +36,15 @@ public class QuestionHandler implements Handler {
 
     private void handleAsk(Command command) {
         Channel channel = command.channel();
-        ChannelQuestion newQuestion = questionRepository.createRandomForChannel(channel.id);
+        Optional<ChannelQuestion> result = questionRepository.createRandomForChannel(channel.id);
+
+        if (result.isEmpty()) {
+            channel.sendMessage(NO_MORE_QUESTIONS_LEFT);
+
+            return;
+        }
+
+        ChannelQuestion newQuestion = result.get();
 
         Map<String, String> replies = new HashMap<>();
         int optionNum = 0;
@@ -60,10 +70,12 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        ChannelQuestion question = questionRepository.findQuestionInChannel(channelQuestionId);
-        if (question == null) {
+        Optional<ChannelQuestion> result = questionRepository.findQuestionInChannel(channelQuestionId);;
+        if (result.isEmpty()) {
             return;
         }
+
+        ChannelQuestion question = result.get();
 
         int selectedOption = Integer.parseInt(parts[3]);
         boolean isCorrectAnswer = question.isCorrectAnswer(selectedOption);
