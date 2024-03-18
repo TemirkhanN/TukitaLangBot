@@ -18,7 +18,7 @@ public class Bot {
     }
 
     public String getName() {
-        return "TukitaLearner";
+        return "TukitaLangBot";
     }
 
     public void handle(Command command) {

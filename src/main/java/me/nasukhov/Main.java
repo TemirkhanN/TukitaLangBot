@@ -6,6 +6,11 @@ public class Main {
     private static final ServiceLocator serviceLocator = new ServiceLocator();
 
     public static void main(String[] args) {
-        serviceLocator.locate(Telegram.class).run();
+        try {
+            serviceLocator.locate(Telegram.class).run();
+        } catch (Throwable e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
     }
 }

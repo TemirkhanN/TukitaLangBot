@@ -16,7 +16,7 @@ public class Updater {
     private static final ServiceLocator serviceLocator = new ServiceLocator();
 
     public static void main(String[] args) {
-        Connection db = Connection.getInstance();
+        Connection db = serviceLocator.locate(Connection.class);
 
         boolean isAlreadyUpdated = db.tableExists("application_version");
         if (isAlreadyUpdated) {

@@ -10,8 +10,8 @@ public class QuestionRepository {
 
     private final Connection db;
 
-    public QuestionRepository() {
-        db = Connection.getInstance();
+    public QuestionRepository(Connection db) {
+        this.db = db;
     }
 
     public void create(

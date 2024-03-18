@@ -6,28 +6,12 @@ import java.util.Map;
 public class Connection {
     private final java.sql.Connection db;
 
-    private static Connection instance;
-
-    public static Connection getInstance() {
-        if (Connection.instance == null) {
-            Connection.instance = new Connection();
-        }
-
-        return Connection.instance;
-    }
-
-    private Connection() {
+    public Connection(String url, String username, String password) {
         try {
-            String url = System.getenv("DATABASE_URL");
-            String username = System.getenv("DATABASE_USERNAME");
-            String password = System.getenv("DATABASE_PASSWORD");
-
             db = DriverManager.getConnection(url, username, password);
             db.setAutoCommit(false);
         } catch (Exception e) {
-            e.printStackTrace();
-
-            throw new RuntimeException("Error occurred while connecting to db");
+            throw new RuntimeException(e.getMessage());
         }
     }
 

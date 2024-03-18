@@ -16,12 +16,10 @@ public class Telegram extends TelegramLongPollingBot {
 
     private final Bot bot;
 
-    // @Sensitive
-    private final String botToken;
-
     public Telegram(String token, Bot bot) {
+        super(token);
+
         this.bot = bot;
-        botToken = token;
     }
 
     public void run() {
@@ -63,11 +61,6 @@ public class Telegram extends TelegramLongPollingBot {
         }
 
         bot.handle(new Command(input, getChannel(chatId), getSender(userId, name)));
-    }
-
-    @Override
-    public String getBotToken() {
-        return botToken;
     }
 
     @Override

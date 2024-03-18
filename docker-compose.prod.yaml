@@ -18,6 +18,7 @@ services:
     entrypoint: ['sh', '/app/entrypoint.sh']
   db:
     image: sameersbn/postgresql:12-20200524
+    restart: always
     ports:
       - "${BOT_TKT_DB_PORT}:5432"
     environment:

@@ -6,74 +6,68 @@ import me.nasukhov.bot.command.Inflector;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
 import me.nasukhov.bot.command.TranslateWordHandler;
+import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.QuestionRepository;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
-final public class ServiceLocator {
-    private HashMap<String, Object> instances = new HashMap<>();
+final class SharedProvider<T> implements Supplier<T>{
+    private final Supplier<T> initializer;
+
+    private T instance;
+
+    SharedProvider(Supplier<T> initializer) {
+        this.initializer = initializer;
+    }
+
+    @Override
+    @NotNull
+    public T get() {
+        if (instance == null) {
+            instance = initializer.get();
+        }
+
+        return instance;
+    }
+}
+
+public class ServiceLocator {
+    private final Map<Class<?>, Supplier<?>> initializers = new HashMap<>();
+
+    public ServiceLocator() {
+        initializers.put(Connection.class, new SharedProvider<>(this::connection));
+        initializers.put(DictionaryRepository.class, new SharedProvider<>(this::dictionaryRepository));
+        initializers.put(ProgressRepository.class, new SharedProvider<>(this::progressRepository));
+        initializers.put(QuestionRepository.class, new SharedProvider<>(this::questionRepository));
+        initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
+        initializers.put(Bot.class, new SharedProvider<>(this::bot));
+        initializers.put(Inflector.class, Inflector::new);
+        initializers.put(TranslateWordHandler.class, TranslateWordHandler::new);
+        initializers.put(LearnWordHandler.class, this::learnWordHandler);
+        initializers.put(QuestionHandler.class, this::questionHandler);
+    }
+
     public <T> T locate(Class<T> serviceId) {
-        if (serviceId.equals(Bot.class)) {
-            return (T) bot();
+        Supplier<?> initializer = initializers.get(serviceId);
+        if (initializer == null) {
+            throw new RuntimeException("Unknown service requested: " + serviceId.getName());
         }
 
-        if (serviceId.equals(Inflector.class)) {
-            return (T) inflector();
-        }
-
-        if (serviceId.equals(TranslateWordHandler.class)) {
-            return (T) translateWordHandler();
-        }
-
-        if (serviceId.equals(LearnWordHandler.class)) {
-            return (T) learnWordHandler();
-        }
-
-        if (serviceId.equals(QuestionHandler.class)) {
-            return (T) questionHandler();
-        }
-
-        if (serviceId.equals(DictionaryRepository.class)) {
-            return (T) dictionaryRepository();
-        }
-
-        if (serviceId.equals(ProgressRepository.class)) {
-            return (T) progressRepository();
-        }
-
-        if (serviceId.equals(QuestionRepository.class)) {
-            return (T) questionRepository();
-        }
-
-        if (serviceId.equals(Telegram.class)) {
-            return (T) telegramBot();
-        }
-
-        throw new RuntimeException("Unknown service requested" + serviceId);
+        return (T) initializer.get();
     }
 
     private Bot bot() {
-        String key = Bot.class.getCanonicalName();
-        if (!instances.containsKey(key)) {
-            Bot declaration =new Bot(locate(Inflector.class));
-            declaration.addHandler(locate(TranslateWordHandler.class));
-            declaration.addHandler(locate(LearnWordHandler.class));
-            declaration.addHandler(locate(QuestionHandler.class));
+        Bot declaration = new Bot(locate(Inflector.class));
+        declaration.addHandler(locate(TranslateWordHandler.class));
+        declaration.addHandler(locate(LearnWordHandler.class));
+        declaration.addHandler(locate(QuestionHandler.class));
 
-            instances.put(key, declaration);
-        }
-
-        return (Bot) instances.get(key);
-    }
-
-    private Inflector inflector() {
-        return new Inflector();
-    }
-
-    private TranslateWordHandler translateWordHandler() {
-        return new TranslateWordHandler();
+        return declaration;
     }
 
     private LearnWordHandler learnWordHandler() {
@@ -85,35 +79,28 @@ final public class ServiceLocator {
     }
 
     private DictionaryRepository dictionaryRepository() {
-        String key = DictionaryRepository.class.getCanonicalName();
-        if (!instances.containsKey(key)) {
-            instances.put(key, new DictionaryRepository());
-        }
-
-        return (DictionaryRepository) instances.get(key);
+        return new DictionaryRepository(locate(Connection.class));
     }
 
     private ProgressRepository progressRepository() {
-        String key = ProgressRepository.class.getCanonicalName();
-        if (!instances.containsKey(key)) {
-            instances.put(key, new ProgressRepository());
-        }
-
-        return (ProgressRepository) instances.get(key);
+        return new ProgressRepository(locate(Connection.class));
     }
 
     private QuestionRepository questionRepository() {
-        String key = QuestionRepository.class.getCanonicalName();
-        if (!instances.containsKey(key)) {
-            instances.put(key, new QuestionRepository());
-        }
-
-        return (QuestionRepository) instances.get(key);
+        return new QuestionRepository(locate(Connection.class));
     }
 
     private Telegram telegramBot() {
         String botToken = System.getenv("TG_BOT_TOKEN");
 
         return new Telegram(botToken, locate(Bot.class));
+    }
+
+    private Connection connection() {
+        String url = System.getenv("DATABASE_URL");
+        String username = System.getenv("DATABASE_USERNAME");
+        String password = System.getenv("DATABASE_PASSWORD");
+
+        return new Connection(url, username, password);
     }
 }

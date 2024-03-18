@@ -12,8 +12,8 @@ import java.util.Map;
 public class DictionaryRepository {
     private final Connection db;
 
-    public DictionaryRepository() {
-        db = Connection.getInstance();
+    public DictionaryRepository(Connection db) {
+        this.db = db;
     }
 
     public List<Word> getByTranslation(String translation) {

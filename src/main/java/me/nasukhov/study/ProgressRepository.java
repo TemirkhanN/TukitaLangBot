@@ -11,9 +11,10 @@ import java.util.Map;
 public class ProgressRepository {
     private final Connection db;
 
-    public ProgressRepository() {
-        db = Connection.getInstance();
+    public ProgressRepository(Connection db) {
+        this.db = db;
     }
+
     public int getLastLearnedWordId(Channel by) {
         Map<Integer, Object> params = new HashMap<>(){{
             put(1, by.id);
