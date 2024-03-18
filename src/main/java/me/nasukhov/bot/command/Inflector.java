@@ -4,12 +4,11 @@ import me.nasukhov.bot.Command;
 
 public class Inflector {
     public Class<? extends Handler> inflect(Command command) {
-        if (command.isDirectCommand("learn")) {
+        if (LearnWordHandler.canHandle(command)) {
             return LearnWordHandler.class;
         }
 
-        // TODO think about encapsulating canHandle instead of using inflector
-        if (command.isDirectCommand("ask") || command.input().startsWith(QuestionHandler.Id)) {
+        if (QuestionHandler.canHandle(command)) {
             return QuestionHandler.class;
         }
 

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class QuestionHandler implements Handler {
-    public static final String Id = "qh";
+    private static final String Id = "qh";
     private static final String ANSWER_CORRECT = "%s отвечает правильно на вопрос «%s»";
     private static final String ANSWER_INCORRECT = "%s допускает ошибку при ответе на вопрос «%s»";
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
@@ -19,9 +19,13 @@ public class QuestionHandler implements Handler {
         this.questionRepository = questionRepository;
     }
 
+    public static boolean canHandle(Command command) {
+        return command.isDirectCommand("ask") ||  command.input().startsWith(Id + " answer ");
+    }
+
     @Override
     public void handle(Command command) {
-        if (command.input().startsWith("/ask")) {
+        if (command.isDirectCommand("ask")) {
             handleAsk(command);
 
             return;
