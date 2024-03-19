@@ -78,8 +78,6 @@ public class QuestionRepository {
     }
 
     public Optional<ChannelQuestion> createRandomForChannel(String channelId) {
-        UUID uuid = UUID.randomUUID();
-
         Collection result = db.fetchByQuery(
                 "SELECT q.* FROM questions q" +
                         " LEFT JOIN ch_questions cq" +
@@ -99,6 +97,7 @@ public class QuestionRepository {
         Question question = mapData(result);
         result.free();
 
+        UUID uuid = UUID.randomUUID();
         db.executeQuery(
                 "INSERT INTO ch_questions(id, channel_id, question_id, created_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP)",
                 new HashMap<>() {{

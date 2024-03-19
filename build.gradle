@@ -10,9 +10,13 @@ repositories {
     mavenCentral()
 }
 
+var jupiterVersion = "5.8.1";
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation 'org.mockito:mockito-core:3.12.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:$jupiterVersion'
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:$jupiterVersion'
     implementation 'com.opencsv:opencsv:3.7'
     implementation 'org.postgresql:postgresql:42.2.23'
     implementation 'org.telegram:telegrambots:6.9.7.1'

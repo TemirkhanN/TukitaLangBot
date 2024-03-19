@@ -7,6 +7,7 @@ public final class ChannelQuestion {
     private final UUID id;
     private final Question question;
 
+    // TODO could id generation encapsulation make it better?
     public ChannelQuestion(UUID id, Question question) {
         this.id = id;
         this.question = question;
@@ -18,10 +19,6 @@ public final class ChannelQuestion {
 
     public String getText() {
         return question.text();
-    }
-
-    public String getAnswer() {
-        return question.answer();
     }
 
     public boolean isCorrectAnswer(int numberOfAnswer) {

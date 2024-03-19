@@ -31,7 +31,7 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        if (command.input().startsWith(QuestionHandler.Id)) {
+        if (command.input().startsWith(QuestionHandler.Id + " answer ")) {
             handleAnswer(command);
 
             return;
@@ -65,7 +65,13 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        UUID channelQuestionId = UUID.fromString(parts[2]);
+        UUID channelQuestionId;
+        try {
+            channelQuestionId = UUID.fromString(parts[2]);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+
         String channelId = command.channel().id;
         String userId = command.sender().id();
 
