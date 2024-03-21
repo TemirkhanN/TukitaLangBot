@@ -45,7 +45,7 @@ public class QuestionHandlerTest {
 
         handler.handle(cmd);
 
-        verifyNoInteractions(output);
+        verifyNoInteractions(output, questionRepository);
     }
 
     @ParameterizedTest
@@ -88,8 +88,7 @@ public class QuestionHandlerTest {
         );
 
         handler.handle(cmd);
-
-        verifyNoInteractions(output);
+        verifyNoInteractions(output, questionRepository);
     }
 
     @Test
@@ -107,6 +106,7 @@ public class QuestionHandlerTest {
         handler.handle(cmd);
 
         verify(questionRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
+        verifyNoMoreInteractions(questionRepository);
         verifyNoInteractions(output);
     }
 
@@ -127,6 +127,7 @@ public class QuestionHandlerTest {
 
         verify(questionRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
         verify(questionRepository).findQuestionInChannel(questionId);
+        verifyNoMoreInteractions(questionRepository);
         verifyNoInteractions(output);
     }
 

@@ -10,29 +10,29 @@ repositories {
     mavenCentral()
 }
 
-var jupiterVersion = "5.8.1";
+var jupiterVersion = "5.10.2";
 dependencies {
-    testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:$jupiterVersion'
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:$jupiterVersion'
-    implementation 'com.opencsv:opencsv:3.7'
-    implementation 'org.postgresql:postgresql:42.2.23'
-    implementation 'org.telegram:telegrambots:6.9.7.1'
-    implementation 'org.slf4j:slf4j-simple:2.0.10'
+    testImplementation "org.mockito:mockito-core:3.12.4"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$jupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-params:$jupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
+    implementation "com.opencsv:opencsv:3.7"
+    implementation "org.postgresql:postgresql:42.2.23"
+    implementation "org.telegram:telegrambots:6.9.7.1"
+    implementation "org.slf4j:slf4j-simple:2.0.10"
 }
 
 test {
     useJUnitPlatform()
 }
 
-tasks.register('run', JavaExec) {
-    main = 'me.nasukhov.Main'
+tasks.register("run", JavaExec) {
+    main = "me.nasukhov.Main"
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('update', JavaExec) {
-    main = 'me.nasukhov.Updater'
+tasks.register("update", JavaExec) {
+    main = "me.nasukhov.Updater"
     classpath = sourceSets.main.runtimeClasspath
 }
