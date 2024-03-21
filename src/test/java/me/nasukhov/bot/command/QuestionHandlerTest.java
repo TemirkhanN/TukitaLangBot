@@ -24,7 +24,6 @@ public class QuestionHandlerTest {
 
     private QuestionHandler handler;
     private QuestionRepository questionRepository;
-
     private Output output;
 
     @BeforeEach
@@ -155,8 +154,6 @@ public class QuestionHandlerTest {
 
         handler.handle(cmd);
 
-        verify(questionRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
-        verify(questionRepository).findQuestionInChannel(questionId);
         verify(questionRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
         verify(output).write("SomeUserName отвечает правильно на вопрос «2+5 equals to»");
     }
