@@ -2,19 +2,14 @@ package me.nasukhov.bot;
 
 import me.nasukhov.bot.command.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bot {
-    private final Map<Class<? extends Handler>, Handler> handlers = new HashMap<>();
-    private final Inflector handlerInflector;
-
-    public Bot(Inflector inflector) {
-        handlerInflector = inflector;
-    }
+    private final List<Handler> handlers = new ArrayList<>();
 
     public void addHandler(Handler handler) {
-        handlers.put(handler.getClass(), handler);
+        handlers.add(handler);
     }
 
     public String getName() {
@@ -22,8 +17,12 @@ public class Bot {
     }
 
     public void handle(Command command) {
-        Handler handler = handlers.get(handlerInflector.inflect(command));
+        for (Handler handler : handlers) {
+            if (handler.supports(command)) {
+                handler.handle(command);
 
-        handler.handle(command);
+                return;
+            }
+        }
     }
 }

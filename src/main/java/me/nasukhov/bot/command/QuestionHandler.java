@@ -19,7 +19,8 @@ public class QuestionHandler implements Handler {
         this.questionRepository = questionRepository;
     }
 
-    public static boolean canHandle(Command command) {
+    @Override
+    public boolean supports(Command command) {
         return command.isDirectCommand("ask") ||  command.input().startsWith(Id + " answer ");
     }
 

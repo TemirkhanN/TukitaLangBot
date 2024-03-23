@@ -19,13 +19,14 @@ public class LearnWordHandler implements Handler {
         this.progressRepository = progressRepository;
     }
 
-    public static boolean canHandle(Command command) {
+    @Override
+    public boolean supports(Command command) {
         return command.isDirectCommand("learn");
     }
 
     @Override
     public void handle(Command command) {
-        if (!canHandle(command)) {
+        if (!supports(command)) {
             return;
         }
 
