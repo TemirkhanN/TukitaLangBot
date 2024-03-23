@@ -2,7 +2,6 @@ package me.nasukhov;
 
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.bridge.Telegram;
-import me.nasukhov.bot.command.Inflector;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
 import me.nasukhov.bot.command.TranslateWordHandler;
@@ -39,6 +38,8 @@ final class SharedProvider<T> implements Supplier<T>{
 public class ServiceLocator {
     private final Map<Class<?>, Supplier<?>> initializers = new HashMap<>();
 
+    private boolean resolved = false;
+
     public ServiceLocator() {
         initializers.put(Connection.class, new SharedProvider<>(this::connection));
         initializers.put(DictionaryRepository.class, new SharedProvider<>(this::dictionaryRepository));
@@ -46,13 +47,21 @@ public class ServiceLocator {
         initializers.put(QuestionRepository.class, new SharedProvider<>(this::questionRepository));
         initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
         initializers.put(Bot.class, new SharedProvider<>(this::bot));
-        initializers.put(Inflector.class, Inflector::new);
         initializers.put(TranslateWordHandler.class, TranslateWordHandler::new);
         initializers.put(LearnWordHandler.class, this::learnWordHandler);
         initializers.put(QuestionHandler.class, this::questionHandler);
     }
 
+    public <T> void addDefinition(Class<T> serviceId, T service) {
+        if (resolved) {
+            throw new RuntimeException("Adding definitions into locator, that has already resolved some refs, may lead to unexpected results");
+        }
+
+        initializers.put(serviceId, new SharedProvider<>(() -> service));
+    }
+
     public <T> T locate(Class<T> serviceId) {
+        resolved = true;
         Supplier<?> initializer = initializers.get(serviceId);
         if (initializer == null) {
             throw new RuntimeException("Unknown service requested: " + serviceId.getName());
@@ -62,7 +71,7 @@ public class ServiceLocator {
     }
 
     private Bot bot() {
-        Bot declaration = new Bot(locate(Inflector.class));
+        Bot declaration = new Bot();
         declaration.addHandler(locate(TranslateWordHandler.class));
         declaration.addHandler(locate(LearnWordHandler.class));
         declaration.addHandler(locate(QuestionHandler.class));
