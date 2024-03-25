@@ -9,7 +9,6 @@ public class Connection {
     public Connection(String url, String username, String password) {
         try {
             db = DriverManager.getConnection(url, username, password);
-            db.setAutoCommit(false);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
