@@ -13,7 +13,8 @@ public class QuestionHandler implements Handler {
     private static final String Id = "qh";
     private static final String ANSWER_CORRECT = "%s отвечает правильно на вопрос «%s»";
     private static final String ANSWER_INCORRECT = "%s допускает ошибку при ответе на вопрос «%s»";
-    private static final String ANSWER_DM = "Правильно «%s».";
+    private static final String ANSWER_CORRECT_DM = "Правильно «%s».\n • ᴗ •";
+    private static final String ANSWER_INCORRECT_DM = "Правильно «%s».\n • ᴖ •";
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
     private final QuestionRepository questionRepository;
     public QuestionHandler(QuestionRepository questionRepository) {
@@ -106,7 +107,8 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        command.reply(String.format(ANSWER_DM, question.viewAnswer()));
+        String template = isCorrectAnswer ? ANSWER_CORRECT_DM: ANSWER_INCORRECT_DM;
+        command.reply(String.format(template, question.viewAnswer()));
         handleAsk(command);
     }
 }
