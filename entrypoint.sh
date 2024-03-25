@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd /app
+# TODO research more adequate ways to do this
+./gradlew clean jar
+./gradlew --stop
 
-./gradlew build
-./gradlew update
-./gradlew run
+java -jar build/libs/TukitaLearner-1.0.jar
