@@ -1,9 +1,6 @@
 package me.nasukhov.bot.bridge;
 
-import me.nasukhov.bot.Bot;
-import me.nasukhov.bot.Command;
-import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.User;
+import me.nasukhov.bot.*;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -40,11 +37,13 @@ public class Telegram extends TelegramLongPollingBot {
         Long chatId;
         Long userId;
         String name;
+        boolean isPublic;
         if (update.hasCallbackQuery()) {
             input = update.getCallbackQuery().getData();
             chatId = update.getCallbackQuery().getMessage().getChatId();
             userId = update.getCallbackQuery().getFrom().getId();
             name = update.getCallbackQuery().getFrom().getFirstName();
+            isPublic = !update.getCallbackQuery().getMessage().isUserMessage();
         } else {
             if (!update.hasMessage()) {
                 return;
@@ -58,9 +57,10 @@ public class Telegram extends TelegramLongPollingBot {
             chatId = msg.getChatId();
             userId = msg.getFrom().getId();
             name = msg.getFrom().getFirstName();
+            isPublic = !msg.isUserMessage();
         }
 
-        bot.handle(new Command(input, getChannel(chatId), getSender(userId, name)));
+        bot.handle(new Command(input, getChannel(chatId, isPublic), getSender(userId, name)));
     }
 
     @Override
@@ -74,8 +74,12 @@ public class Telegram extends TelegramLongPollingBot {
         super.onRegister();
     }
 
-    private Channel getChannel(Long chatId) {
-        return new Channel(ID_PREFIX + chatId, new TelegramOutput(chatId, this));
+    private Channel getChannel(Long chatId, boolean isPublic) {
+        return new Channel(
+                ID_PREFIX + chatId,
+                new TelegramOutput(chatId, this),
+                isPublic
+        );
     }
 
     private User getSender(Long userId, String name) {

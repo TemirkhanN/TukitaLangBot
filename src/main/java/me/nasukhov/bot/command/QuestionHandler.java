@@ -13,6 +13,7 @@ public class QuestionHandler implements Handler {
     private static final String Id = "qh";
     private static final String ANSWER_CORRECT = "%s отвечает правильно на вопрос «%s»";
     private static final String ANSWER_INCORRECT = "%s допускает ошибку при ответе на вопрос «%s»";
+    private static final String ANSWER_DM = "Правильно «%s».";
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
     private final QuestionRepository questionRepository;
     public QuestionHandler(QuestionRepository questionRepository) {
@@ -73,10 +74,10 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        String channelId = command.channel().id;
+        Channel channel = command.channel();
         String userId = command.sender().id();
 
-        boolean alreadyAnswered = questionRepository.hasReplyInChannel(userId, channelId, channelQuestionId);
+        boolean alreadyAnswered = questionRepository.hasReplyInChannel(userId, channel.id, channelQuestionId);
         if (alreadyAnswered) {
             return;
         }
@@ -93,12 +94,19 @@ public class QuestionHandler implements Handler {
         questionRepository.addUserAnswer(
                 channelQuestionId,
                 userId,
-                channelId,
+                channel.id,
                 isCorrectAnswer
         );
 
-        String msg = isCorrectAnswer ? ANSWER_CORRECT: ANSWER_INCORRECT;
+        if (channel.isPublic()) {
+            String template = isCorrectAnswer ? ANSWER_CORRECT: ANSWER_INCORRECT;
 
-        command.channel().sendMessage(String.format(msg, command.sender().name(), question.getText()));
+            command.reply(String.format(template, command.sender().name(), question.getText()));
+
+            return;
+        }
+
+        command.reply(String.format(ANSWER_DM, question.viewAnswer()));
+        handleAsk(command);
     }
 }

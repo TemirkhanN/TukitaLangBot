@@ -22,19 +22,26 @@ public final class ChannelQuestion {
     }
 
     public boolean isCorrectAnswer(int numberOfAnswer) {
-        if (numberOfAnswer < 0) {
-            return false;
-        }
-
-        if (numberOfAnswer > question.variants().size()) {
-            return false;
-        }
-
-
-        String selectedAnswer = question.variants().get(numberOfAnswer-1);
+        String selectedAnswer = viewVariant(numberOfAnswer);
         String correctAnswer = question.answer();
 
         return selectedAnswer.equals(correctAnswer);
+    }
+
+    public String viewAnswer() {
+        return question.answer();
+    }
+
+    public String viewVariant(int variant) {
+        if (variant < 0) {
+            return "";
+        }
+
+        if (variant > question.variants().size()) {
+            return "";
+        }
+
+        return question.variants().get(variant-1);
     }
 
     public List<String> listVariants() {
