@@ -1,7 +1,8 @@
 package me.nasukhov.bot.command;
 
 import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.Command;
+import me.nasukhov.bot.Input;
+import me.nasukhov.bot.Output;
 import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.QuestionRepository;
 import java.util.HashMap;
@@ -22,31 +23,31 @@ public class QuestionHandler implements Handler {
     }
 
     @Override
-    public boolean supports(Command command) {
+    public boolean supports(Input command) {
         return command.isDirectCommand("ask") ||  command.input().startsWith(Id + " answer ");
     }
 
     @Override
-    public void handle(Command command) {
-        if (command.isDirectCommand("ask")) {
-            handleAsk(command);
+    public void handle(Input input, Output output) {
+        if (input.isDirectCommand("ask")) {
+            handleAsk(input, output);
 
             return;
         }
 
-        if (command.input().startsWith(QuestionHandler.Id + " answer ")) {
-            handleAnswer(command);
+        if (input.input().startsWith(QuestionHandler.Id + " answer ")) {
+            handleAnswer(input, output);
 
             return;
         }
     }
 
-    private void handleAsk(Command command) {
-        Channel channel = command.channel();
+    private void handleAsk(Input input, Output output) {
+        Channel channel = input.channel();
         Optional<ChannelQuestion> result = questionRepository.createRandomForChannel(channel.id);
 
         if (result.isEmpty()) {
-            channel.sendMessage(NO_MORE_QUESTIONS_LEFT);
+            output.write(NO_MORE_QUESTIONS_LEFT);
 
             return;
         }
@@ -59,11 +60,11 @@ public class QuestionHandler implements Handler {
             replies.put(replyVariant, String.format("%s answer %s %d", QuestionHandler.Id, newQuestion.getId().toString(), ++optionNum));
         }
 
-        channel.sendQuestion(newQuestion.getText(), replies);
+        output.promptChoice(newQuestion.getText(), replies);
     }
 
-    private void handleAnswer(Command command) {
-        String[] parts = command.input().split("\\s+", 4);
+    private void handleAnswer(Input input, Output output) {
+        String[] parts = input.input().split("\\s+", 4);
         if (parts.length < 4) {
             return;
         }
@@ -75,8 +76,8 @@ public class QuestionHandler implements Handler {
             return;
         }
 
-        Channel channel = command.channel();
-        String userId = command.sender().id();
+        Channel channel = input.channel();
+        String userId = input.sender().id();
 
         boolean alreadyAnswered = questionRepository.hasReplyInChannel(userId, channel.id, channelQuestionId);
         if (alreadyAnswered) {
@@ -102,13 +103,13 @@ public class QuestionHandler implements Handler {
         if (channel.isPublic()) {
             String template = isCorrectAnswer ? ANSWER_CORRECT: ANSWER_INCORRECT;
 
-            command.reply(String.format(template, command.sender().name(), question.getText()));
+            output.write(String.format(template, input.sender().name(), question.getText()));
 
             return;
         }
 
         String template = isCorrectAnswer ? ANSWER_CORRECT_DM: ANSWER_INCORRECT_DM;
-        command.reply(String.format(template, question.viewAnswer()));
-        handleAsk(command);
+        output.write(String.format(template, question.viewAnswer()));
+        handleAsk(input, output);
     }
 }

@@ -1,6 +1,7 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Command;
+import me.nasukhov.bot.Input;
+import me.nasukhov.bot.Output;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.Word;
@@ -20,17 +21,17 @@ public class LearnWordHandler implements Handler {
     }
 
     @Override
-    public boolean supports(Command command) {
+    public boolean supports(Input command) {
         return command.isDirectCommand("learn");
     }
 
     @Override
-    public void handle(Command command) {
-        if (!supports(command)) {
+    public void handle(Input input, Output output) {
+        if (!supports(input)) {
             return;
         }
 
-        int lastLearnedWord = progressRepository.getLastLearnedWordId(command.channel());
+        int lastLearnedWord = progressRepository.getLastLearnedWordId(input.channel());
         List<Integer> newWordsIds = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
@@ -46,15 +47,15 @@ public class LearnWordHandler implements Handler {
         }
 
         if (sb.isEmpty()) {
-            command.reply(NO_MORE_UNLEARNED_WORDS);
+            output.write(NO_MORE_UNLEARNED_WORDS);
 
             return;
         }
 
-        progressRepository.setLastLearnedWords(command.channel(), newWordsIds);
+        progressRepository.setLastLearnedWords(input.channel(), newWordsIds);
 
         // Removing trailing newlines
         sb.delete(sb.length() - 2, sb.length());
-        command.reply(sb.toString());
+        output.write(sb.toString());
     }
 }

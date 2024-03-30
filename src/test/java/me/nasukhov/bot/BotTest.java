@@ -18,47 +18,47 @@ public class BotTest {
 
     @Test
     public void testHandleWhenNoHandlerIsPresent() {
-        Command cmd = new Command(
+        Input input = new Input(
                 "Unrelated input",
-                new Channel("SomeChannelId", output),
+                new Channel("SomeChannelId"),
                 new User("SomeUserId", "SomeUserName")
         );
 
-        bot.handle(cmd);
+        bot.handle(input, output);
 
         verifyNoInteractions(output);
     }
 
     @Test
     public void testHandleWhenHandlerIsNotRegistered() {
-        Command cmd = new Command(
+        Input input = new Input(
                 "/learn",
-                new Channel("SomeChannelId", output),
+                new Channel("SomeChannelId"),
                 new User("SomeUserId", "SomeUserName")
         );
 
-        bot.handle(cmd);
+        bot.handle(input, output);
 
         verifyNoInteractions(output);
     }
 
     @Test
     public void testHandle() {
-        Command cmd = new Command(
+        Input input = new Input(
                 "/learn",
-                new Channel("SomeChannelId", output),
+                new Channel("SomeChannelId"),
                 new User("SomeUserId", "SomeUserName")
         );
 
         Handler handler = mock(Handler.class);
-        when(handler.supports(cmd)).thenReturn(true);
+        when(handler.supports(input)).thenReturn(true);
 
         bot.addHandler(handler);
 
-        bot.handle(cmd);
+        bot.handle(input, output);
 
-        verify(handler).supports(cmd);
-        verify(handler).handle(cmd);
+        verify(handler).supports(input);
+        verify(handler).handle(input, output);
         verifyNoInteractions(output);
     }
 }

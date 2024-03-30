@@ -60,7 +60,10 @@ public class Telegram extends TelegramLongPollingBot {
             isPublic = !msg.isUserMessage();
         }
 
-        bot.handle(new Command(input, getChannel(chatId, isPublic), getSender(userId, name)));
+        bot.handle(
+            new Input(input, getChannel(chatId, isPublic), getSender(userId, name)),
+            new TelegramOutput(chatId, this)
+        );
     }
 
     @Override
@@ -75,11 +78,7 @@ public class Telegram extends TelegramLongPollingBot {
     }
 
     private Channel getChannel(Long chatId, boolean isPublic) {
-        return new Channel(
-                ID_PREFIX + chatId,
-                new TelegramOutput(chatId, this),
-                isPublic
-        );
+        return new Channel(ID_PREFIX + chatId, isPublic);
     }
 
     private User getSender(Long userId, String name) {

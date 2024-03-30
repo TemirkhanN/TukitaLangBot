@@ -34,10 +34,10 @@ public class TelegramOutput implements Output {
     }
 
     @Override
-    public void write(String text, Map<String, String> replyOptions) {
+    public void promptChoice(String question, Map<String, String> replyOptions) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());
-        message.setText(text);
+        message.setText(question);
         message.setReplyMarkup(createOptions(replyOptions));
         message.disableNotification();
         try {

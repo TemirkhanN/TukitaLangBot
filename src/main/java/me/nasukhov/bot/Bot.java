@@ -16,10 +16,10 @@ public class Bot {
         return "TukitaLangBot";
     }
 
-    public void handle(Command command) {
+    public void handle(Input command, Output output) {
         for (Handler handler : handlers) {
             if (handler.supports(command)) {
-                handler.handle(command);
+                handler.handle(command, output);
 
                 return;
             }

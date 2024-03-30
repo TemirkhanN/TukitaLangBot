@@ -1,9 +1,10 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Command;
+import me.nasukhov.bot.Input;
+import me.nasukhov.bot.Output;
 
 public interface Handler {
-    void handle(Command command);
+    void handle(Input input, Output output);
 
-    boolean supports(Command command);
+    boolean supports(Input command);
 }

@@ -4,7 +4,6 @@ import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.bridge.Telegram;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
-import me.nasukhov.bot.command.TranslateWordHandler;
 import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.study.ProgressRepository;
@@ -47,7 +46,6 @@ public class ServiceLocator {
         initializers.put(QuestionRepository.class, new SharedProvider<>(this::questionRepository));
         initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
         initializers.put(Bot.class, new SharedProvider<>(this::bot));
-        initializers.put(TranslateWordHandler.class, TranslateWordHandler::new);
         initializers.put(LearnWordHandler.class, this::learnWordHandler);
         initializers.put(QuestionHandler.class, this::questionHandler);
     }
@@ -72,7 +70,6 @@ public class ServiceLocator {
 
     private Bot bot() {
         Bot declaration = new Bot();
-        declaration.addHandler(locate(TranslateWordHandler.class));
         declaration.addHandler(locate(LearnWordHandler.class));
         declaration.addHandler(locate(QuestionHandler.class));
 
