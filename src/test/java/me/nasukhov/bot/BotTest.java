@@ -9,11 +9,13 @@ import static org.mockito.Mockito.*;
 public class BotTest {
     Bot bot;
     Output output;
+    ChannelRepository channelRepository;
 
     @BeforeEach
     void setup() {
         output = mock(Output.class);
-        bot = new Bot();
+        channelRepository = mock(ChannelRepository.class);
+        bot = new Bot(channelRepository);
     }
 
     @Test
@@ -26,7 +28,7 @@ public class BotTest {
 
         bot.handle(input, output);
 
-        verifyNoInteractions(output);
+        verifyNoInteractions(output, channelRepository);
     }
 
     @Test
@@ -39,7 +41,7 @@ public class BotTest {
 
         bot.handle(input, output);
 
-        verifyNoInteractions(output);
+        verifyNoInteractions(output, channelRepository);
     }
 
     @Test
@@ -59,6 +61,7 @@ public class BotTest {
 
         verify(handler).supports(input);
         verify(handler).handle(input, output);
+        verify(channelRepository).addChannel(input.channel());
         verifyNoInteractions(output);
     }
 }

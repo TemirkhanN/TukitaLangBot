@@ -1,7 +1,8 @@
 package me.nasukhov;
 
 import me.nasukhov.bot.Bot;
-import me.nasukhov.bot.bridge.Telegram;
+import me.nasukhov.bot.ChannelRepository;
+import me.nasukhov.bot.bridge.tg.Telegram;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
 import me.nasukhov.db.Connection;
@@ -34,7 +35,9 @@ final class SharedProvider<T> implements Supplier<T>{
     }
 }
 
-public class ServiceLocator {
+public final class ServiceLocator {
+    public static ServiceLocator instance;
+
     private final Map<Class<?>, Supplier<?>> initializers = new HashMap<>();
 
     private boolean resolved = false;
@@ -44,10 +47,16 @@ public class ServiceLocator {
         initializers.put(DictionaryRepository.class, new SharedProvider<>(this::dictionaryRepository));
         initializers.put(ProgressRepository.class, new SharedProvider<>(this::progressRepository));
         initializers.put(QuestionRepository.class, new SharedProvider<>(this::questionRepository));
+        initializers.put(ChannelRepository.class, new SharedProvider<>(this::channelRepository));
         initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
         initializers.put(Bot.class, new SharedProvider<>(this::bot));
         initializers.put(LearnWordHandler.class, this::learnWordHandler);
         initializers.put(QuestionHandler.class, this::questionHandler);
+
+        // TODO looks weird
+        if (instance == null) {
+            instance = this;
+        }
     }
 
     public <T> void addDefinition(Class<T> serviceId, T service) {
@@ -69,7 +78,7 @@ public class ServiceLocator {
     }
 
     private Bot bot() {
-        Bot declaration = new Bot();
+        Bot declaration = new Bot(locate(ChannelRepository.class));
         declaration.addHandler(locate(LearnWordHandler.class));
         declaration.addHandler(locate(QuestionHandler.class));
 
@@ -81,7 +90,7 @@ public class ServiceLocator {
     }
 
     private QuestionHandler questionHandler() {
-        return new QuestionHandler(locate(QuestionRepository.class));
+        return new QuestionHandler(locate(ProgressRepository.class), locate(ChannelRepository.class));
     }
 
     private DictionaryRepository dictionaryRepository() {
@@ -89,11 +98,15 @@ public class ServiceLocator {
     }
 
     private ProgressRepository progressRepository() {
-        return new ProgressRepository(locate(Connection.class));
+        return new ProgressRepository(locate(Connection.class), locate(QuestionRepository.class));
     }
 
     private QuestionRepository questionRepository() {
         return new QuestionRepository(locate(Connection.class));
+    }
+
+    private ChannelRepository channelRepository() {
+        return new ChannelRepository(locate(Connection.class));
     }
 
     private Telegram telegramBot() {

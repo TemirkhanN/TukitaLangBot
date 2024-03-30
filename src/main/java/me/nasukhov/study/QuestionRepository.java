@@ -29,7 +29,7 @@ public class QuestionRepository {
         );
     }
 
-    public void addUserAnswer(UUID channelQuestionId, String userId, String channelId, boolean isCorrectAnswer) {
+    void addUserAnswer(UUID channelQuestionId, String userId, String channelId, boolean isCorrectAnswer) {
         Map<Integer, Object> params = new HashMap<>();
         params.put(1, channelQuestionId);
         params.put(2, userId);
@@ -38,7 +38,7 @@ public class QuestionRepository {
         db.executeQuery("INSERT INTO ch_question_replies(question_id, user_id, channel_id, is_correct) VALUES(?,?,?,?)", params);
     }
 
-    public boolean hasReplyInChannel(String userId, String channelId, UUID channelQuestionId) {
+    boolean hasReplyInChannel(String userId, String channelId, UUID channelQuestionId) {
         Map<Integer, Object> params = new HashMap<>();
         params.put(1, channelId);
         params.put(2, userId);
@@ -56,7 +56,7 @@ public class QuestionRepository {
         return hasReply;
     }
 
-    public Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
+    Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
         Collection result = db.fetchByQuery("" +
                         "SELECT q.* FROM questions q" +
                         " INNER JOIN ch_questions cq ON cq.question_id=q.id" +
@@ -77,7 +77,7 @@ public class QuestionRepository {
         return Optional.of(new ChannelQuestion(channelQuestionId, question));
     }
 
-    public Optional<ChannelQuestion> createRandomForChannel(String channelId) {
+    Optional<ChannelQuestion> createRandomForChannel(String channelId) {
         Collection result = db.fetchByQuery(
                 "SELECT q.* FROM questions q" +
                         " LEFT JOIN ch_questions cq" +

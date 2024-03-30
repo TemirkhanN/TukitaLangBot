@@ -1,6 +1,6 @@
 package me.nasukhov;
 
-import me.nasukhov.bot.bridge.Telegram;
+import me.nasukhov.bot.bridge.tg.Telegram;
 
 public class Main {
     private static final ServiceLocator serviceLocator = new ServiceLocator();

@@ -1,4 +1,4 @@
-package me.nasukhov.bot.bridge;
+package me.nasukhov.bot.bridge.tg;
 
 import me.nasukhov.bot.Output;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TelegramOutput implements Output {
+public final class TelegramOutput implements Output {
     private final Long chatId;
     private final Telegram api;
 

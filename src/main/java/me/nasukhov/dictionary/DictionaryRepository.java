@@ -3,7 +3,6 @@ package me.nasukhov.dictionary;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,21 +13,6 @@ public class DictionaryRepository {
 
     public DictionaryRepository(Connection db) {
         this.db = db;
-    }
-
-    public List<Word> getByTranslation(String translation) {
-        Map<Integer, Object> params = new HashMap<>();
-        params.put(1, Word.canonize(translation));
-
-        Collection result = db.fetchByQuery("SELECT * FROM dictionary WHERE translation=?", params);
-
-        List<Word> matches = new ArrayList<>();
-        while (result.next()) {
-            matches.add(mapData(result));
-        }
-        result.free();
-
-        return matches;
     }
 
     public List<Word> getChunk(int length, int startingFromId) {
@@ -63,6 +47,17 @@ public class DictionaryRepository {
             }};
             db.executeQuery("INSERT INTO dictionary(word, translation, part_of_speech, description, context) VALUES(?,?,?,?,?)", params);
         });
+    }
+
+    public boolean isEmpty() {
+        boolean isEmpty = true;
+        Collection result = db.fetchByQuery("SELECT COUNT(*) as total FROM dictionary");
+        if (result.next()) {
+            isEmpty = (Long) result.getCurrentEntryProp("total") == 0;
+        }
+        result.free();
+
+        return isEmpty;
     }
 
     private Word mapData(Collection data) {

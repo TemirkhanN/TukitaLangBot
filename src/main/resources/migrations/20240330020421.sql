@@ -43,4 +43,4 @@ CREATE INDEX idx_channel_user ON ch_question_replies (channel_id, user_id, quest
 CREATE TABLE application_version (
     version VARCHAR(32) UNIQUE
 );
-INSERT INTO application_version(version) VALUES('0.1.0');
+INSERT INTO application_version(version) VALUES('20240330020421');

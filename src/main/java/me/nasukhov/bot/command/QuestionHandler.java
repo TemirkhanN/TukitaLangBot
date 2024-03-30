@@ -1,14 +1,14 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.Input;
-import me.nasukhov.bot.Output;
+import me.nasukhov.bot.*;
+import me.nasukhov.bot.bridge.OutputResolver;
 import me.nasukhov.study.ChannelQuestion;
-import me.nasukhov.study.QuestionRepository;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import me.nasukhov.study.ProgressRepository;
+
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class QuestionHandler implements Handler {
     private static final String Id = "qh";
@@ -17,14 +17,38 @@ public class QuestionHandler implements Handler {
     private static final String ANSWER_CORRECT_DM = "Правильно «%s».\n • ᴗ •";
     private static final String ANSWER_INCORRECT_DM = "Правильно «%s».\n • ᴖ •";
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
-    private final QuestionRepository questionRepository;
-    public QuestionHandler(QuestionRepository questionRepository) {
-        this.questionRepository = questionRepository;
+    private final ProgressRepository progressRepository;
+
+    private final ChannelRepository channelRepository;
+
+    public QuestionHandler(
+            ProgressRepository progressRepository,
+            ChannelRepository channelRepository
+    ) {
+        this.progressRepository = progressRepository;
+        this.channelRepository = channelRepository;
+
+        registerTasks();
     }
 
     @Override
     public boolean supports(Input command) {
         return command.isDirectCommand("ask") ||  command.input().startsWith(Id + " answer ");
+    }
+
+    private void registerTasks() {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        Runnable autoAskQuestionInGroups = () -> {
+            for (Channel channel: channelRepository.list()) {
+                handleAsk(
+                        new Input("", channel, User.System),
+                        OutputResolver.resolveFor(channel)
+                );
+            }
+        };
+
+        scheduler.scheduleAtFixedRate(autoAskQuestionInGroups, 0, 2, TimeUnit.HOURS);
     }
 
     @Override
@@ -44,9 +68,10 @@ public class QuestionHandler implements Handler {
 
     private void handleAsk(Input input, Output output) {
         Channel channel = input.channel();
-        Optional<ChannelQuestion> result = questionRepository.createRandomForChannel(channel.id);
+        Optional<ChannelQuestion> result = progressRepository.createRandomForChannel(channel.id);
 
         if (result.isEmpty()) {
+            // TODO share summary. reset progress
             output.write(NO_MORE_QUESTIONS_LEFT);
 
             return;
@@ -79,12 +104,12 @@ public class QuestionHandler implements Handler {
         Channel channel = input.channel();
         String userId = input.sender().id();
 
-        boolean alreadyAnswered = questionRepository.hasReplyInChannel(userId, channel.id, channelQuestionId);
+        boolean alreadyAnswered = progressRepository.hasReplyInChannel(userId, channel.id, channelQuestionId);
         if (alreadyAnswered) {
             return;
         }
 
-        Optional<ChannelQuestion> result = questionRepository.findQuestionInChannel(channelQuestionId);;
+        Optional<ChannelQuestion> result = progressRepository.findQuestionInChannel(channelQuestionId);;
         if (result.isEmpty()) {
             return;
         }
@@ -93,7 +118,7 @@ public class QuestionHandler implements Handler {
 
         int selectedOption = Integer.parseInt(parts[3]);
         boolean isCorrectAnswer = question.isCorrectAnswer(selectedOption);
-        questionRepository.addUserAnswer(
+        progressRepository.addUserAnswer(
                 channelQuestionId,
                 userId,
                 channel.id,

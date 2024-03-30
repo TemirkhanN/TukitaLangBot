@@ -1,12 +1,9 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.Input;
-import me.nasukhov.bot.Output;
-import me.nasukhov.bot.User;
+import me.nasukhov.bot.*;
 import me.nasukhov.study.ChannelQuestion;
+import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;
-import me.nasukhov.study.QuestionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,15 +20,15 @@ public class QuestionHandlerTest {
     private static final String TEMPLATE_ASK_QUESTION = "qh answer %s %d";
 
     private QuestionHandler handler;
-    private QuestionRepository questionRepository;
+    private ProgressRepository progressRepository;
     private Output output;
 
     @BeforeEach
     void setup() {
         output = mock(Output.class);
-        questionRepository = mock(QuestionRepository.class);
+        progressRepository = mock(ProgressRepository.class);
 
-        handler = new QuestionHandler(questionRepository);
+        handler = new QuestionHandler(progressRepository, mock(ChannelRepository.class));
     }
 
     @Test
@@ -44,7 +41,7 @@ public class QuestionHandlerTest {
 
         handler.handle(input, output);
 
-        verifyNoInteractions(output, questionRepository);
+        verifyNoInteractions(output, progressRepository);
     }
 
     @ParameterizedTest
@@ -67,7 +64,7 @@ public class QuestionHandlerTest {
                 }})
         );
 
-        when(questionRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(channelQuestion));
 
         handler.handle(input, output);
 
@@ -87,7 +84,7 @@ public class QuestionHandlerTest {
         );
 
         handler.handle(input, output);
-        verifyNoInteractions(output, questionRepository);
+        verifyNoInteractions(output, progressRepository);
     }
 
     @Test
@@ -100,12 +97,12 @@ public class QuestionHandlerTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
-        when(questionRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(true);
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(true);
 
         handler.handle(input, output);
 
-        verify(questionRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
-        verifyNoMoreInteractions(questionRepository);
+        verify(progressRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
+        verifyNoMoreInteractions(progressRepository);
         verifyNoInteractions(output);
     }
 
@@ -119,14 +116,14 @@ public class QuestionHandlerTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
-        when(questionRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(questionRepository.findQuestionInChannel(questionId)).thenReturn(Optional.empty());
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.empty());
 
         handler.handle(input, output);
 
-        verify(questionRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
-        verify(questionRepository).findQuestionInChannel(questionId);
-        verifyNoMoreInteractions(questionRepository);
+        verify(progressRepository).hasReplyInChannel("SomeUserId", "SomeChannelId", questionId);
+        verify(progressRepository).findQuestionInChannel(questionId);
+        verifyNoMoreInteractions(progressRepository);
         verifyNoInteractions(output);
     }
 
@@ -149,12 +146,12 @@ public class QuestionHandlerTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
-        when(questionRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(questionRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
 
         handler.handle(input, output);
 
-        verify(questionRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
+        verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
         verify(output).write("SomeUserName отвечает правильно на вопрос «2+5 equals to»");
     }
 }

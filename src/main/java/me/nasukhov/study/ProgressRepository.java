@@ -4,15 +4,15 @@ import me.nasukhov.bot.Channel;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProgressRepository {
     private final Connection db;
+    private final QuestionRepository questionRepository;
 
-    public ProgressRepository(Connection db) {
+    public ProgressRepository(Connection db, QuestionRepository questionRepository) {
         this.db = db;
+        this.questionRepository = questionRepository;
     }
 
     public int getLastLearnedWordId(Channel by) {
@@ -40,5 +40,21 @@ public class ProgressRepository {
                     }}
             );
         }
+    }
+
+    public void addUserAnswer(UUID channelQuestionId, String userId, String channelId, boolean isCorrectAnswer) {
+        questionRepository.addUserAnswer(channelQuestionId, userId, channelId, isCorrectAnswer);
+    }
+
+    public boolean hasReplyInChannel(String userId, String channelId, UUID channelQuestionId) {
+        return questionRepository.hasReplyInChannel(userId, channelId, channelQuestionId);
+    }
+
+    public Optional<ChannelQuestion> createRandomForChannel(String channelId) {
+        return questionRepository.createRandomForChannel(channelId);
+    }
+
+    public Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
+        return questionRepository.findQuestionInChannel(channelQuestionId);
     }
 }

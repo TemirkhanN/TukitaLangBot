@@ -1,4 +1,4 @@
-package me.nasukhov.bot.bridge;
+package me.nasukhov.bot.bridge.tg;
 
 import me.nasukhov.bot.*;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Telegram extends TelegramLongPollingBot {
-    final static String ID_PREFIX = "tg_";
+    public final static String ID_PREFIX = "tg_";
 
     private final Bot bot;
 
@@ -71,12 +71,7 @@ public class Telegram extends TelegramLongPollingBot {
         return bot.getName();
     }
 
-    @Override
-    public void onRegister() {
-        // TODO notify about features
-        super.onRegister();
-    }
-
+    // TODO See OutputResolver
     private Channel getChannel(Long chatId, boolean isPublic) {
         return new Channel(ID_PREFIX + chatId, isPublic);
     }
