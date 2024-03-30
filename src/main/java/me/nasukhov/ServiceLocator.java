@@ -3,6 +3,7 @@ package me.nasukhov;
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
+import me.nasukhov.bot.command.LearnInterestingHandler;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
 import me.nasukhov.db.Connection;
@@ -50,7 +51,8 @@ public final class ServiceLocator {
         initializers.put(ChannelRepository.class, new SharedProvider<>(this::channelRepository));
         initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
         initializers.put(Bot.class, new SharedProvider<>(this::bot));
-        initializers.put(LearnWordHandler.class, this::learnWordHandler);
+        initializers.put(LearnWordHandler.class, new SharedProvider<>(this::learnWordHandler));
+        initializers.put(LearnInterestingHandler.class, new SharedProvider<>(this::learnInterestingHandler));
         initializers.put(QuestionHandler.class, this::questionHandler);
 
         // TODO looks weird
@@ -80,6 +82,7 @@ public final class ServiceLocator {
     private Bot bot() {
         Bot declaration = new Bot(locate(ChannelRepository.class));
         declaration.addHandler(locate(LearnWordHandler.class));
+        declaration.addHandler(locate(LearnInterestingHandler.class));
         declaration.addHandler(locate(QuestionHandler.class));
 
         return declaration;
@@ -87,6 +90,10 @@ public final class ServiceLocator {
 
     private LearnWordHandler learnWordHandler() {
         return new LearnWordHandler(locate(DictionaryRepository.class), locate(ProgressRepository.class));
+    }
+
+    private LearnInterestingHandler learnInterestingHandler() {
+        return new LearnInterestingHandler(locate(ChannelRepository.class));
     }
 
     private QuestionHandler questionHandler() {
