@@ -18,10 +18,10 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class LearnWordHandlerTest {
+public class LearnWordTest {
     private static final int MAX_AMOUNT_OF_WORDS_PER_REQUEST = 3;
 
-    private LearnWordHandler handler;
+    private LearnWord handler;
     private DictionaryRepository dictionaryRepository;
     private ProgressRepository progressRepository;
     private Output output;
@@ -31,7 +31,7 @@ public class LearnWordHandlerTest {
         output = mock(Output.class);
         dictionaryRepository = mock(DictionaryRepository.class);
         progressRepository = mock(ProgressRepository.class);
-        handler = new LearnWordHandler(dictionaryRepository, progressRepository);
+        handler = new LearnWord(dictionaryRepository, progressRepository);
     }
 
     @Test

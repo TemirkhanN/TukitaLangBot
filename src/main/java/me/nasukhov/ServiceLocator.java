@@ -3,10 +3,7 @@ package me.nasukhov;
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
-import me.nasukhov.bot.command.CheckProgress;
-import me.nasukhov.bot.command.LearnInterestingHandler;
-import me.nasukhov.bot.command.LearnWordHandler;
-import me.nasukhov.bot.command.QuestionHandler;
+import me.nasukhov.bot.command.*;
 import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.study.ProgressRepository;
@@ -52,9 +49,10 @@ public final class ServiceLocator {
         initializers.put(ChannelRepository.class, new SharedProvider<>(this::channelRepository));
         initializers.put(Telegram.class, new SharedProvider<>(this::telegramBot));
         initializers.put(Bot.class, new SharedProvider<>(this::bot));
-        initializers.put(LearnWordHandler.class, new SharedProvider<>(this::learnWordHandler));
-        initializers.put(LearnInterestingHandler.class, new SharedProvider<>(this::learnInterestingHandler));
-        initializers.put(QuestionHandler.class, this::questionHandler);
+        initializers.put(LearnWord.class, new SharedProvider<>(this::learnWordHandler));
+        initializers.put(LearnFact.class, new SharedProvider<>(this::learnInterestingHandler));
+        initializers.put(AskQuestion.class, new SharedProvider<>(this::askQuestionHandler));
+        initializers.put(AnswerQuestion.class, this::answerQuestionHandler);
         initializers.put(CheckProgress.class, this::checkProgressHandler);
 
         // TODO looks weird
@@ -83,24 +81,29 @@ public final class ServiceLocator {
 
     private Bot bot() {
         Bot declaration = new Bot(locate(ChannelRepository.class));
-        declaration.addHandler(locate(LearnWordHandler.class));
-        declaration.addHandler(locate(LearnInterestingHandler.class));
-        declaration.addHandler(locate(QuestionHandler.class));
+        declaration.addHandler(locate(LearnWord.class));
+        declaration.addHandler(locate(LearnFact.class));
+        declaration.addHandler(locate(AnswerQuestion.class));
+        declaration.addHandler(locate(AskQuestion.class));
         declaration.addHandler(locate(CheckProgress.class));
 
         return declaration;
     }
 
-    private LearnWordHandler learnWordHandler() {
-        return new LearnWordHandler(locate(DictionaryRepository.class), locate(ProgressRepository.class));
+    private LearnWord learnWordHandler() {
+        return new LearnWord(locate(DictionaryRepository.class), locate(ProgressRepository.class));
     }
 
-    private LearnInterestingHandler learnInterestingHandler() {
-        return new LearnInterestingHandler(locate(ChannelRepository.class));
+    private LearnFact learnInterestingHandler() {
+        return new LearnFact(locate(ChannelRepository.class));
     }
 
-    private QuestionHandler questionHandler() {
-        return new QuestionHandler(locate(ProgressRepository.class), locate(ChannelRepository.class));
+    private AnswerQuestion answerQuestionHandler() {
+        return new AnswerQuestion(locate(ProgressRepository.class), locate(AskQuestion.class));
+    }
+
+    private AskQuestion askQuestionHandler() {
+        return new AskQuestion(locate(ProgressRepository.class), locate(ChannelRepository.class));
     }
 
     private CheckProgress checkProgressHandler() {

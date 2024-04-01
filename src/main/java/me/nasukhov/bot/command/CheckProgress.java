@@ -29,7 +29,7 @@ public class CheckProgress implements Handler {
     }
 
     @Override
-    public boolean supports(Input command) {
-        return command.isDirectCommand("stats");
+    public boolean supports(Input input) {
+        return input.isDirectCommand("stats");
     }
 }

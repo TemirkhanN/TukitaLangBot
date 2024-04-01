@@ -5,16 +5,17 @@ import me.nasukhov.bot.bridge.OutputResolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class LearnInterestingHandler implements Handler {
+public class LearnFact implements Handler {
     private static final List<String> facts = new ArrayList<>(){{
        add("Несмотря на все изобилие букв в алфавите, не все слова тукитинского языка возможно записать. Так, например, слово \"лист\" произносится \"аль-и\". Слово кипеть - \"угьугьеду\", звучит с носовым звуком, который отличается от звука \"гь\"");
        add("Тукитинский язык является племенным/трибальным языком. По этой причине глаголы в нем часто созвучны с действием, которое они обозначают. \n" +
                "Например \"хъухъабеду\"(пилить), гlанеду(кричать,орать), мушшаледу(тушить), кьаледу(доить).");
-       add("Несмотря на идентичность произношений, тукитинский алфавит отличается от аварского. В аварском нет букв \"кк\" или \"чч\", хотя звуки этих букв имеются и они одинаковы в обоих языках. Также, по какой-то причине звук \"льль\" из аварского языка в тукитинском записан, как буква лl. Поскольку на тукитинском, в отличии от аварского, почти нет литературы и прозы, тукитинцам привычнее читать аварскую \"лълъ\" чем \"лl\"");
+       add("Несмотря на идентичность произношений, тукитинский алфавит отличается от аварского. В аварском нет букв \"кк\" или \"чч\", хотя звуки этих букв имеются и они одинаковы в обоих языках. Также, по какой-то причине звук \"лълъ\" из аварского языка в тукитинском записан, как буква лl. Поскольку на тукитинском, в отличии от аварского, почти нет литературы и прозы, тукитинцам привычнее читать аварскую \"лълъ\" чем \"лl\"");
        add("Примечательно, в тукитинском языке основной грамматический залог - страдательный. То есть, вместо \"я тебе рассказываю\" будет \"мной тебе рассказывается\".");
        add("В тукитинском широко используется глагол состояния, как в английском to be(быть). \n" +
                "Например, \"я дома\" будет звучать, как \"я дома есть\", а \"я Ахмед\" будет \"Я Ахмед есть\".");
@@ -59,9 +60,12 @@ public class LearnInterestingHandler implements Handler {
                "То есть, если вас спросят \"вы где?\", то использовать \"илълъи\" будет ошибкой, поскольку \"илълъи къелълъи эгу\" будет значить \"мы с тобой дома\". В таких случаях нужно использовать \"ищи\".");
     }};
 
-    private int latestShared = 0;
+    private int latestShared;
 
-    public LearnInterestingHandler(ChannelRepository channelRepository) {
+    public LearnFact(ChannelRepository channelRepository) {
+        Random random = new Random();
+        latestShared = random.nextInt(facts.size());
+
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
         Runnable autoAskQuestionInGroups = () -> {
@@ -81,7 +85,7 @@ public class LearnInterestingHandler implements Handler {
     }
 
     @Override
-    public boolean supports(Input command) {
+    public boolean supports(Input input) {
         // This handler does not support direct interaction
         return false;
     }

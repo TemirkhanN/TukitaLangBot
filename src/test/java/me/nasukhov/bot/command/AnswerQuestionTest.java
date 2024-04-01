@@ -6,20 +6,16 @@ import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-public class QuestionHandlerTest {
-    private static final String TEMPLATE_ASK_QUESTION = "qh answer %s %d";
-
-    private QuestionHandler handler;
+public class AnswerQuestionTest {
+    private AnswerQuestion handler;
+    private AskQuestion askQuestion;
     private ProgressRepository progressRepository;
     private Output output;
 
@@ -27,8 +23,9 @@ public class QuestionHandlerTest {
     void setup() {
         output = mock(Output.class);
         progressRepository = mock(ProgressRepository.class);
+        askQuestion = mock(AskQuestion.class);
 
-        handler = new QuestionHandler(progressRepository, mock(ChannelRepository.class));
+        handler = new AnswerQuestion(progressRepository, askQuestion);
     }
 
     @Test
@@ -42,37 +39,6 @@ public class QuestionHandlerTest {
         handler.handle(input, output);
 
         verifyNoInteractions(output, progressRepository);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/ask", "/ask@botName"})
-    void testHandleAsk(String rawInput) {
-        Input input = new Input(
-                rawInput,
-                new Channel("SomeChannelId"),
-                new User("SomeUserId", "SomeUserName")
-        );
-
-        UUID chQuestionId = UUID.randomUUID();
-
-        ChannelQuestion channelQuestion = new ChannelQuestion(
-                chQuestionId,
-                new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
-                    add("thirteen");
-                    add("seven");
-                    add("twenty-one");
-                }})
-        );
-
-        when(progressRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(channelQuestion));
-
-        handler.handle(input, output);
-
-        verify(output, only()).promptChoice("2+5 equals to", new HashMap<>() {{
-            put("thirteen", String.format(TEMPLATE_ASK_QUESTION, chQuestionId, 1));
-            put("seven", String.format(TEMPLATE_ASK_QUESTION, chQuestionId, 2));
-            put("twenty-one", String.format(TEMPLATE_ASK_QUESTION, chQuestionId, 3));
-        }});
     }
 
     @Test
@@ -128,7 +94,35 @@ public class QuestionHandlerTest {
     }
 
     @Test
-    public void testHandleAnswerCorrectChoice() {
+    public void testHandleIncorrectAnswer() {
+        UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
+
+        ChannelQuestion channelQuestion = new ChannelQuestion(
+                questionId,
+                new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
+                    add("thirteen");
+                    add("seven");
+                    add("twenty-one");
+                }})
+        );
+
+        Input input = new Input(
+                "qh answer " + questionId + " 3",
+                new Channel("SomeChannelId"),
+                new User("SomeUserId", "SomeUserName")
+        );
+
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+
+        handler.handle(input, output);
+
+        verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", false);
+        verify(output).write("SomeUserName, правильно «seven».\n• ᴖ •");
+    }
+
+    @Test
+    public void testHandleCorrectAnswer() {
         UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
 
         ChannelQuestion channelQuestion = new ChannelQuestion(
@@ -152,6 +146,64 @@ public class QuestionHandlerTest {
         handler.handle(input, output);
 
         verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
-        verify(output).write("SomeUserName отвечает правильно на вопрос «2+5 equals to»");
+        verify(output).write("SomeUserName, правильно «seven».\n• ᴗ •");
+    }
+
+    @Test
+    public void testHandleCorrectAnswerInDirectMessages() {
+        UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
+
+        ChannelQuestion channelQuestion = new ChannelQuestion(
+                questionId,
+                new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
+                    add("thirteen");
+                    add("seven");
+                    add("twenty-one");
+                }})
+        );
+
+        Input input = new Input(
+                "qh answer " + questionId + " 2",
+                new Channel("SomeChannelId", false),
+                new User("SomeUserId", "SomeUserName")
+        );
+
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+
+        handler.handle(input, output);
+
+        verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
+        verify(output).write("SomeUserName, правильно «seven».\n• ᴗ •");
+        verify(askQuestion).handle(input, output);
+    }
+
+    @Test
+    public void testHandleIncorrectAnswerInDirectMessages() {
+        UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
+
+        ChannelQuestion channelQuestion = new ChannelQuestion(
+                questionId,
+                new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
+                    add("thirteen");
+                    add("seven");
+                    add("twenty-one");
+                }})
+        );
+
+        Input input = new Input(
+                "qh answer " + questionId + " 3",
+                new Channel("SomeChannelId", false),
+                new User("SomeUserId", "SomeUserName")
+        );
+
+        when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+
+        handler.handle(input, output);
+
+        verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", false);
+        verify(output).write("SomeUserName, правильно «seven».\n• ᴖ •");
+        verify(askQuestion).handle(input, output);
     }
 }

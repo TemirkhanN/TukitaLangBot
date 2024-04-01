@@ -9,20 +9,20 @@ import me.nasukhov.dictionary.Word;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LearnWordHandler implements Handler {
+public class LearnWord implements Handler {
     private static final String NO_MORE_UNLEARNED_WORDS = "Вы изучили все слова из нашего словаря - больше новых слов нет.";
 
     private final DictionaryRepository dictionary;
     private final ProgressRepository progressRepository;
 
-    public LearnWordHandler(DictionaryRepository dictionaryRepository, ProgressRepository progressRepository) {
+    public LearnWord(DictionaryRepository dictionaryRepository, ProgressRepository progressRepository) {
         this.dictionary = dictionaryRepository;
         this.progressRepository = progressRepository;
     }
 
     @Override
-    public boolean supports(Input command) {
-        return command.isDirectCommand("learn");
+    public boolean supports(Input input) {
+        return input.isDirectCommand("learn");
     }
 
     @Override
