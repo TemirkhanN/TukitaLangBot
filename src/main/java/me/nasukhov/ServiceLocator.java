@@ -3,6 +3,7 @@ package me.nasukhov;
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
+import me.nasukhov.bot.command.CheckProgress;
 import me.nasukhov.bot.command.LearnInterestingHandler;
 import me.nasukhov.bot.command.LearnWordHandler;
 import me.nasukhov.bot.command.QuestionHandler;
@@ -54,6 +55,7 @@ public final class ServiceLocator {
         initializers.put(LearnWordHandler.class, new SharedProvider<>(this::learnWordHandler));
         initializers.put(LearnInterestingHandler.class, new SharedProvider<>(this::learnInterestingHandler));
         initializers.put(QuestionHandler.class, this::questionHandler);
+        initializers.put(CheckProgress.class, this::checkProgressHandler);
 
         // TODO looks weird
         if (instance == null) {
@@ -84,6 +86,7 @@ public final class ServiceLocator {
         declaration.addHandler(locate(LearnWordHandler.class));
         declaration.addHandler(locate(LearnInterestingHandler.class));
         declaration.addHandler(locate(QuestionHandler.class));
+        declaration.addHandler(locate(CheckProgress.class));
 
         return declaration;
     }
@@ -98,6 +101,10 @@ public final class ServiceLocator {
 
     private QuestionHandler questionHandler() {
         return new QuestionHandler(locate(ProgressRepository.class), locate(ChannelRepository.class));
+    }
+
+    private CheckProgress checkProgressHandler() {
+        return new CheckProgress(locate(ProgressRepository.class));
     }
 
     private DictionaryRepository dictionaryRepository() {

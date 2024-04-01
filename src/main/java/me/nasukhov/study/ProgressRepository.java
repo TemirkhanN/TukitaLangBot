@@ -1,6 +1,7 @@
 package me.nasukhov.study;
 
 import me.nasukhov.bot.Channel;
+import me.nasukhov.bot.User;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
@@ -15,8 +16,40 @@ public class ProgressRepository {
         this.questionRepository = questionRepository;
     }
 
+    public ChannelStats getChannelStats(Channel channel) {
+        List<UserStats> usersStats = new ArrayList<>();
+        Map<Integer, Object> params = new HashMap<>() {{
+            put(1, channel.id);
+        }};
+        Collection result = db.fetchByQuery("SELECT " +
+                        "user_id, " +
+                        "SUM(CASE WHEN is_correct = true THEN 1 ELSE 0 END) AS correct_answers, " +
+                        "COUNT(*) AS total_answers " +
+                        "FROM ch_question_replies " +
+                        "WHERE channel_id=? " +
+                        "GROUP BY user_id ORDER BY total_answers DESC",
+                params
+        );
+
+        while (result.next()) {
+            int correctAnswers = ((Long)result.getCurrentEntryProp("correct_answers")).intValue();
+            int totalAnswers = ((Long)result.getCurrentEntryProp("total_answers")).intValue();
+            usersStats.add(
+                    new UserStats(
+                            result.getCurrentEntryProp("user_id"),
+                            correctAnswers,
+                            totalAnswers - correctAnswers
+                    )
+            );
+        }
+
+        result.free();
+
+        return new ChannelStats(usersStats);
+    }
+
     public int getLastLearnedWordId(Channel by) {
-        Map<Integer, Object> params = new HashMap<>(){{
+        Map<Integer, Object> params = new HashMap<>() {{
             put(1, by.id);
         }};
 
@@ -31,10 +64,10 @@ public class ProgressRepository {
     }
 
     public void setLastLearnedWords(Channel by, List<Integer> wordIds) {
-        for (Integer wordId: wordIds) {
+        for (Integer wordId : wordIds) {
             db.executeQuery(
                     "INSERT INTO learned_words(channel_id, word_id, learned_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
-                    new HashMap<>(){{
+                    new HashMap<>() {{
                         put(1, by.id);
                         put(2, wordId);
                     }}
