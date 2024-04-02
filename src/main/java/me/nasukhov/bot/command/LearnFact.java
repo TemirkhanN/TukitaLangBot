@@ -70,7 +70,7 @@ public class LearnFact implements Handler {
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        Runnable autoAskQuestionInGroups = () -> {
+        Runnable shareFactInChannel = () -> {
             String fact = facts.get(latestShared);
             latestShared = (latestShared + 1) % facts.size();
             for (Channel channel: channelRepository.list()) {
@@ -78,7 +78,7 @@ public class LearnFact implements Handler {
             }
         };
 
-        scheduler.scheduleAtFixedRate(autoAskQuestionInGroups, 0, 1, TimeUnit.DAYS);
+        scheduler.scheduleAtFixedRate(shareFactInChannel, 0, 1, TimeUnit.DAYS);
     }
 
     @Override
