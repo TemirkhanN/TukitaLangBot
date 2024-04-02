@@ -1,4 +1,4 @@
-package me.nasukhov.bot;
+package me.nasukhov.bot.io;
 
 public record Input(String input, Channel channel, User sender) {
     public boolean isDirectCommand(String command) {

@@ -1,7 +1,7 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Input;
-import me.nasukhov.bot.Output;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
 import me.nasukhov.study.ChannelStats;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.UserStats;

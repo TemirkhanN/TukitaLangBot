@@ -1,7 +1,7 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Input;
-import me.nasukhov.bot.Output;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
 
 public interface Handler {
     boolean supports(Input input);

@@ -1,7 +1,10 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.*;
 import me.nasukhov.bot.bridge.OutputResolver;
+import me.nasukhov.bot.io.Channel;
+import me.nasukhov.bot.io.ChannelRepository;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
 import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.ProgressRepository;
 

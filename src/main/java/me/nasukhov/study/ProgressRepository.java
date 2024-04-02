@@ -1,6 +1,6 @@
 package me.nasukhov.study;
 
-import me.nasukhov.bot.Channel;
+import me.nasukhov.bot.io.Channel;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 

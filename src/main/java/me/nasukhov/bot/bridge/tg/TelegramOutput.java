@@ -1,6 +1,6 @@
 package me.nasukhov.bot.bridge.tg;
 
-import me.nasukhov.bot.Output;
+import me.nasukhov.bot.io.Output;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;

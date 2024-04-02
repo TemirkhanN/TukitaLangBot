@@ -1,6 +1,6 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.*;
+import me.nasukhov.bot.io.*;
 import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;

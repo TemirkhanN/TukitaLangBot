@@ -1,4 +1,4 @@
-package me.nasukhov.bot;
+package me.nasukhov.bot.io;
 
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;

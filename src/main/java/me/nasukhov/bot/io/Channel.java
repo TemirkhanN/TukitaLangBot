@@ -1,4 +1,4 @@
-package me.nasukhov.bot;
+package me.nasukhov.bot.io;
 
 public class Channel {
     public final String id;

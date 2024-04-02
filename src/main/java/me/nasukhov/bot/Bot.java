@@ -1,6 +1,9 @@
 package me.nasukhov.bot;
 
-import me.nasukhov.bot.command.*;
+import me.nasukhov.bot.command.Handler;
+import me.nasukhov.bot.io.ChannelRepository;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
 
 import java.util.ArrayList;
 import java.util.List;

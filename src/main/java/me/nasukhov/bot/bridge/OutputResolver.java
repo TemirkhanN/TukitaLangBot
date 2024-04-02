@@ -1,8 +1,8 @@
 package me.nasukhov.bot.bridge;
 
 import me.nasukhov.ServiceLocator;
-import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.Output;
+import me.nasukhov.bot.io.Channel;
+import me.nasukhov.bot.io.Output;
 import me.nasukhov.bot.bridge.tg.Telegram;
 import me.nasukhov.bot.bridge.tg.TelegramOutput;
 

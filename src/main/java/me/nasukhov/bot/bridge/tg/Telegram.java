@@ -1,6 +1,9 @@
 package me.nasukhov.bot.bridge.tg;
 
 import me.nasukhov.bot.*;
+import me.nasukhov.bot.io.Channel;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Message;

@@ -1,6 +1,9 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.*;
+import me.nasukhov.bot.io.Channel;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
+import me.nasukhov.bot.io.User;
 import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;

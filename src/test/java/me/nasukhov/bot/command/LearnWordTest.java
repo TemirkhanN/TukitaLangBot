@@ -1,9 +1,9 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.Channel;
-import me.nasukhov.bot.Input;
-import me.nasukhov.bot.Output;
-import me.nasukhov.bot.User;
+import me.nasukhov.bot.io.Channel;
+import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.Output;
+import me.nasukhov.bot.io.User;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.PartOfSpeech;
 import me.nasukhov.dictionary.Word;

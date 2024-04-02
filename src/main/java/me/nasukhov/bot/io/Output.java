@@ -1,4 +1,4 @@
-package me.nasukhov.bot;
+package me.nasukhov.bot.io;
 
 import java.util.Map;
 

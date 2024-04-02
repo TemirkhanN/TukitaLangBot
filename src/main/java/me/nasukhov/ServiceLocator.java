@@ -1,7 +1,7 @@
 package me.nasukhov;
 
 import me.nasukhov.bot.Bot;
-import me.nasukhov.bot.ChannelRepository;
+import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
 import me.nasukhov.bot.command.*;
 import me.nasukhov.db.Connection;
