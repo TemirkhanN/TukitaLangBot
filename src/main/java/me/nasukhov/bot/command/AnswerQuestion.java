@@ -7,8 +7,8 @@ import me.nasukhov.study.ProgressRepository;
 import java.util.*;
 
 public class AnswerQuestion implements Handler {
-    private static final String ANSWER_CORRECT = "%s, правильно «%s».\n• ᴗ •";
-    private static final String ANSWER_INCORRECT = "%s, правильно «%s».\n• ᴖ •";
+    private static final String ANSWER_CORRECT = "%s, да, правильный ответ «%s».";
+    private static final String ANSWER_INCORRECT = "%s, увы, правильный ответ «%s».";
     private final ProgressRepository progressRepository;
     private final AskQuestion askQuestion;
 
