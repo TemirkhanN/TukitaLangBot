@@ -19,8 +19,8 @@ services:
   db:
     image: sameersbn/postgresql:12-20200524
     restart: always
-    ports:
-      - "${BOT_TKT_DB_PORT}:5432"
+    #ports:
+    #  - "${BOT_TKT_DB_PORT}:5432"
     environment:
       - DB_NAME=${BOT_TKT_DB_NAME}
       - DB_USER=${BOT_TKT_DB_USER}
