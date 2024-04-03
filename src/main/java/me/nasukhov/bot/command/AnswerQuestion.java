@@ -9,8 +9,8 @@ import me.nasukhov.study.ProgressRepository;
 import java.util.*;
 
 public class AnswerQuestion implements Handler {
-    private static final String ANSWER_CORRECT = "%s, да, правильный ответ «%s».";
-    private static final String ANSWER_INCORRECT = "%s, увы, правильный ответ «%s».";
+    private static final String ANSWER_CORRECT = "%s, да, правильный ответ «<spoiler>%s</spoiler>».";
+    private static final String ANSWER_INCORRECT = "%s, увы, правильный ответ «<spoiler>%s</spoiler>».";
     private final ProgressRepository progressRepository;
     private final AskQuestion askQuestion;
 
@@ -46,7 +46,7 @@ public class AnswerQuestion implements Handler {
             return;
         }
 
-        Optional<ChannelQuestion> result = progressRepository.findQuestionInChannel(channelQuestionId);;
+        Optional<ChannelQuestion> result = progressRepository.findQuestionInChannel(channelQuestionId);
         if (result.isEmpty()) {
             return;
         }

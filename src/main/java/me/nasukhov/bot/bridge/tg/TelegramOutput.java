@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 public final class TelegramOutput implements Output {
     private static final Pattern PLACEHOLDER_USERNAME = Pattern.compile("<user>(-?\\d+)</user>");
+    private static final Pattern PLACEHOLDER_SPOILER = Pattern.compile("<spoiler>(.+?)</spoiler>");
     private static final Map<Long, String> userNames = new ConcurrentHashMap<>();
 
     private final Long chatId;
@@ -33,6 +34,7 @@ public final class TelegramOutput implements Output {
         message.setChatId(chatId.toString());
         message.setText(renderText(text));
         message.disableNotification();
+        message.setParseMode("HTML");
         try {
             api.execute(message);
         } catch (TelegramApiException e) {
@@ -76,7 +78,9 @@ public final class TelegramOutput implements Output {
         return inlineKeyboard;
     }
 
+    // TODO move to bb-codes rendering classes
     private String renderText(String text) {
+        // Id-to-Name renderer
         Matcher matcher = PLACEHOLDER_USERNAME.matcher(text);
         StringBuilder result = new StringBuilder();
         while (matcher.find()) {
@@ -92,7 +96,15 @@ public final class TelegramOutput implements Output {
         }
         matcher.appendTail(result);
 
-        return result.toString();
+        // Spoiler renderer
+        Matcher spoilerMatcher = PLACEHOLDER_SPOILER.matcher(result.toString());
+        StringBuilder result2 = new StringBuilder();
+        while (spoilerMatcher.find()) {
+            spoilerMatcher.appendReplacement(result2, "<span class=\"tg-spoiler\">" + spoilerMatcher.group(1) + "</span>");
+        }
+        spoilerMatcher.appendTail(result2);
+
+        return result2.toString();
     }
 
     public Optional<String> getUsername(Long userId) {

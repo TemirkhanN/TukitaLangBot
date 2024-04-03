@@ -121,7 +121,7 @@ public class AnswerQuestionTest {
         handler.handle(input, output);
 
         verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", false);
-        verify(output).write("SomeUserName, увы, правильный ответ «seven».");
+        verify(output).write("SomeUserName, увы, правильный ответ «<spoiler>seven</spoiler>».");
     }
 
     @Test
@@ -149,7 +149,7 @@ public class AnswerQuestionTest {
         handler.handle(input, output);
 
         verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
-        verify(output).write("SomeUserName, да, правильный ответ «seven».");
+        verify(output).write("SomeUserName, да, правильный ответ «<spoiler>seven</spoiler>».");
     }
 
     @Test
@@ -177,7 +177,7 @@ public class AnswerQuestionTest {
         handler.handle(input, output);
 
         verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", true);
-        verify(output).write("SomeUserName, да, правильный ответ «seven».");
+        verify(output).write("SomeUserName, да, правильный ответ «<spoiler>seven</spoiler>».");
         verify(askQuestion).handle(input, output);
     }
 
@@ -206,7 +206,7 @@ public class AnswerQuestionTest {
         handler.handle(input, output);
 
         verify(progressRepository).addUserAnswer(questionId, "SomeUserId", "SomeChannelId", false);
-        verify(output).write("SomeUserName, увы, правильный ответ «seven».");
+        verify(output).write("SomeUserName, увы, правильный ответ «<spoiler>seven</spoiler>».");
         verify(askQuestion).handle(input, output);
     }
 }
