@@ -7,8 +7,8 @@ import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
 import me.nasukhov.study.ChannelQuestion;
 import me.nasukhov.study.ProgressRepository;
+import me.nasukhov.study.Time;
 
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,16 +34,12 @@ public class AskQuestion implements Handler {
     }
 
     private void registerTasks() {
-        // UTC+3(7:00-23:00). Intentionally simplified to avoid working with datetime and zoneId.
-        LocalTime startTime = LocalTime.of(4, 0);
-        LocalTime endTime = LocalTime.of(20, 0);
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
         Runnable autoAskQuestionInGroups = () -> {
-            LocalTime currentTime = LocalTime.now();
             // We don't want it to work at night
-            if (!currentTime.isAfter(startTime) || !currentTime.isBefore(endTime)) {
+            if (Time.isOffHours()) {
                 return;
             }
 
