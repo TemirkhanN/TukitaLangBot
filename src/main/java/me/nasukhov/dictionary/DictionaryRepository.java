@@ -43,9 +43,8 @@ public class DictionaryRepository {
                 put(2, word.translation);
                 put(3, word.pos.toString());
                 put(4, word.description);
-                put(5, word.context);
             }};
-            db.executeQuery("INSERT INTO dictionary(word, translation, part_of_speech, description, context) VALUES(?,?,?,?,?)", params);
+            db.executeQuery("INSERT INTO dictionary(word, translation, part_of_speech, description) VALUES(?,?,?,?)", params);
         });
     }
 
@@ -66,8 +65,7 @@ public class DictionaryRepository {
                 data.getCurrentEntryProp("word"),
                 data.getCurrentEntryProp("translation"),
                 data.getCurrentEntryProp("description"),
-                PartOfSpeech.fromValue(data.getCurrentEntryProp("part_of_speech")),
-                data.getCurrentEntryProp("context")
+                PartOfSpeech.fromValue(data.getCurrentEntryProp("part_of_speech"))
         );
     }
 }

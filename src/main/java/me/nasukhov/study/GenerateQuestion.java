@@ -27,6 +27,10 @@ public class GenerateQuestion {
     public void run() {
         List<Word> words = dictionary.getChunk(MAX_WORDS, 0);
 
+        generateWithWords(words);
+    }
+
+    private void generateWithWords(List<Word> words) {
         for (Word word : words) {
             List<String> fromNativeVariants = new ArrayList<>();
             List<String> toNativeVariants = new ArrayList<>();

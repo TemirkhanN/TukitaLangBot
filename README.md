@@ -8,5 +8,6 @@ TODO
 - [ ] difficulty level
 - [ ] pronunciation reference
 - [x] interesting facts(laragliri, ladiril rukya etc., trees named by their purpose)
+- [ ] move facts to persistent storage
 - [ ] most difficult words list
 - [x] add channel user stats command

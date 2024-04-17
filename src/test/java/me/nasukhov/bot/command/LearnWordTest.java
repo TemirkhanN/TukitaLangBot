@@ -79,8 +79,8 @@ public class LearnWordTest {
         int lastLearnedWordId = 0;
         when(progressRepository.getLastLearnedWordId(input.channel())).thenReturn(lastLearnedWordId);
         when(dictionaryRepository.getChunk(MAX_AMOUNT_OF_WORDS_PER_REQUEST, lastLearnedWordId)).thenReturn(new ArrayList<>(){{
-            add(new Word(124, "Word1", "Translation1", "Description1", PartOfSpeech.NOUN, "Some context"));
-            add(new Word(125, "Word2", "Translation2", "Description2", PartOfSpeech.NOUN, "Another context"));
+            add(new Word(124, "Word1", "Translation1", "Description1", PartOfSpeech.NOUN));
+            add(new Word(125, "Word2", "Translation2", "Description2", PartOfSpeech.NOUN));
         }});
 
         handler.handle(input, output);

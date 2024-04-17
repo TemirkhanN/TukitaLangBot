@@ -33,7 +33,7 @@ public class ImportDictionary {
                     continue;
                 }
 
-                Word word = new Word(Word.canonize(columns[3]), Word.canonize(columns[1]), columns[13], PartOfSpeech.fromValue(columns[8]), columns[14]);
+                Word word = new Word(Word.canonize(columns[3]), Word.canonize(columns[1]), columns[13], PartOfSpeech.fromValue(columns[8]));
                 words.add(word);
             }
 
