@@ -25,6 +25,10 @@ public class Bot {
     }
 
     public void handle(Input command, Output output) {
+        if (!channelRepository.isActive(command.channel())) {
+            return;
+        }
+
         for (Handler handler : handlers) {
             if (handler.supports(command)) {
                 invokeHandler(command, output, handler);
@@ -39,11 +43,6 @@ public class Bot {
      */
     private void invokeHandler(Input command, Output output, Handler handler) {
         channelRepository.addChannel(command.channel());
-
-        if (!channelRepository.isActive(command.channel())) {
-            return;
-        }
-
         handler.handle(command, output);
     }
 }

@@ -55,10 +55,11 @@ public class ChannelRepository {
                 }}
         );
 
+        // If there is no such channel, we consider it as active since there is no direct indication for the state
         if (!queryResult.next()) {
             queryResult.free();
 
-            return false;
+            return true;
         }
 
         boolean isActive = queryResult.getCurrentEntryProp("is_active");

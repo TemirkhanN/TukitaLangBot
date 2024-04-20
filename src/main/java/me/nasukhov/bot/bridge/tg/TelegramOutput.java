@@ -1,10 +1,7 @@
 package me.nasukhov.bot.bridge.tg;
 
-import me.nasukhov.ServiceLocator;
 import me.nasukhov.bot.bridge.IOResolver;
-import me.nasukhov.bot.io.BotLeftChannel;
 import me.nasukhov.bot.io.Output;
-import me.nasukhov.event.Dispatcher;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -147,9 +144,7 @@ public final class TelegramOutput implements Output {
             return false;
         }
 
-        ServiceLocator.instance
-                .locate(Dispatcher.class)
-                .signal(new BotLeftChannel(IOResolver.telegramChannel(chatId, true)));
+        IOResolver.telegramChannel(chatId, true).deactivate();
 
         return true;
     }

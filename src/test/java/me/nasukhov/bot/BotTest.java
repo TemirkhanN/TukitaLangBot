@@ -20,6 +20,22 @@ public class BotTest {
     }
 
     @Test
+    public void testHandleWhenChannelIsInactive(){
+        Input input = new Input(
+                "Unrelated input",
+                new Channel("SomeChannelId"),
+                new User("SomeUserId", "SomeUserName")
+        );
+
+        when(channelRepository.isActive(input.channel())).thenReturn(false);
+
+        bot.handle(input, output);
+
+        verify(channelRepository).isActive(input.channel());
+        verifyNoMoreInteractions(output, channelRepository);
+    }
+
+    @Test
     public void testHandleWhenNoHandlerIsPresent() {
         Input input = new Input(
                 "Unrelated input",
@@ -27,9 +43,12 @@ public class BotTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
+        when(channelRepository.isActive(input.channel())).thenReturn(true);
+
         bot.handle(input, output);
 
-        verifyNoInteractions(output, channelRepository);
+        verify(channelRepository).isActive(input.channel());
+        verifyNoMoreInteractions(output, channelRepository);
     }
 
     @Test
@@ -40,9 +59,12 @@ public class BotTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
+        when(channelRepository.isActive(input.channel())).thenReturn(true);
+
         bot.handle(input, output);
 
-        verifyNoInteractions(output, channelRepository);
+        verify(channelRepository).isActive(input.channel());
+        verifyNoMoreInteractions(output, channelRepository);
     }
 
     @Test
@@ -54,15 +76,17 @@ public class BotTest {
         );
 
         Handler handler = mock(Handler.class);
-        when(handler.supports(input)).thenReturn(true);
-
         bot.addHandler(handler);
+
+        when(channelRepository.isActive(input.channel())).thenReturn(true);
+        when(handler.supports(input)).thenReturn(true);
 
         bot.handle(input, output);
 
+        verify(channelRepository).isActive(input.channel());
         verify(handler).supports(input);
-        verify(handler).handle(input, output);
         verify(channelRepository).addChannel(input.channel());
+        verify(handler).handle(input, output);
         verifyNoInteractions(output);
     }
 }

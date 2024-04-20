@@ -3,7 +3,6 @@ package me.nasukhov.bot.bridge.tg;
 import me.nasukhov.bot.*;
 import me.nasukhov.bot.bridge.IOResolver;
 import me.nasukhov.bot.io.*;
-import me.nasukhov.event.Dispatcher;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
@@ -15,13 +14,10 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class Telegram extends TelegramLongPollingBot {
     private final Bot bot;
 
-    private final Dispatcher eventBus;
-
-    public Telegram(String token, Bot bot, Dispatcher eventBus) {
+    public Telegram(String token, Bot bot) {
         super(token);
 
         this.bot = bot;
-        this.eventBus = eventBus;
     }
 
     public void run() {
@@ -58,14 +54,14 @@ public class Telegram extends TelegramLongPollingBot {
                             !update.getMyChatMember().getChat().isUserChat()
                     );
 
-                    eventBus.signal(new BotLeftChannel(channel));
+                    channel.deactivate();
                 } else if (isAddedToChannel(update)) {
                     Channel channel = IOResolver.telegramChannel(
                             update.getMyChatMember().getChat().getId(),
                             !update.getMyChatMember().getChat().isUserChat()
                     );
 
-                    eventBus.signal(new BotJoinedChannel(channel));
+                    channel.activate();
                 }
 
                 return;
