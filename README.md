@@ -11,3 +11,4 @@ TODO
 - [ ] move facts to persistent storage
 - [ ] most difficult words list
 - [x] add channel user stats command
+- [ ] implement channel config(frequency, difficulty, enable/disable some features)
