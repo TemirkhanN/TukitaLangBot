@@ -1,25 +1,27 @@
 package me.nasukhov.bot.bridge.tg;
 
 import me.nasukhov.bot.*;
-import me.nasukhov.bot.io.Channel;
-import me.nasukhov.bot.io.Input;
-import me.nasukhov.bot.io.User;
+import me.nasukhov.bot.bridge.IOResolver;
+import me.nasukhov.bot.io.*;
+import me.nasukhov.event.Dispatcher;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Telegram extends TelegramLongPollingBot {
-    public final static String ID_PREFIX = "tg_";
-
     private final Bot bot;
 
-    public Telegram(String token, Bot bot) {
+    private final Dispatcher eventBus;
+
+    public Telegram(String token, Bot bot, Dispatcher eventBus) {
         super(token);
 
         this.bot = bot;
+        this.eventBus = eventBus;
     }
 
     public void run() {
@@ -41,6 +43,7 @@ public class Telegram extends TelegramLongPollingBot {
         Long userId;
         String name;
         boolean isPublic;
+        // TODO provide some wrapper around Update to make encapsulation adequate. Current one is very broad and messy
         if (update.hasCallbackQuery()) {
             input = update.getCallbackQuery().getData();
             chatId = update.getCallbackQuery().getMessage().getChatId();
@@ -49,6 +52,22 @@ public class Telegram extends TelegramLongPollingBot {
             isPublic = !update.getCallbackQuery().getMessage().isUserMessage();
         } else {
             if (!update.hasMessage()) {
+                if (isRemovedFromChannel(update)) {
+                    Channel channel = IOResolver.telegramChannel(
+                            update.getMyChatMember().getChat().getId(),
+                            !update.getMyChatMember().getChat().isUserChat()
+                    );
+
+                    eventBus.signal(new BotLeftChannel(channel));
+                } else if (isAddedToChannel(update)) {
+                    Channel channel = IOResolver.telegramChannel(
+                            update.getMyChatMember().getChat().getId(),
+                            !update.getMyChatMember().getChat().isUserChat()
+                    );
+
+                    eventBus.signal(new BotJoinedChannel(channel));
+                }
+
                 return;
             }
 
@@ -64,7 +83,7 @@ public class Telegram extends TelegramLongPollingBot {
         }
 
         bot.handle(
-            new Input(input, getChannel(chatId, isPublic), getSender(userId, name)),
+            new Input(input, IOResolver.telegramChannel(chatId, isPublic), getSender(userId, name)),
             new TelegramOutput(chatId, this)
         );
     }
@@ -74,12 +93,26 @@ public class Telegram extends TelegramLongPollingBot {
         return bot.getName();
     }
 
-    // TODO See OutputResolver
-    private Channel getChannel(Long chatId, boolean isPublic) {
-        return new Channel(ID_PREFIX + chatId, isPublic);
-    }
-
     private User getSender(Long userId, String name) {
         return new User(String.valueOf(userId), name);
+    }
+
+    private boolean isRemovedFromChannel(Update action) {
+        ChatMemberUpdated membershipUpdate = action.getMyChatMember();
+        if (membershipUpdate == null) {
+            return false;
+        }
+
+        // Bruh, either java or tg-api-sdk hates LoD
+        return membershipUpdate.getNewChatMember().getStatus().equals("left");
+    }
+
+    private boolean isAddedToChannel(Update action) {
+        ChatMemberUpdated membershipUpdate = action.getMyChatMember();
+        if (membershipUpdate == null) {
+            return false;
+        }
+
+        return membershipUpdate.getNewChatMember().getStatus().equals("member");
     }
 }

@@ -27,12 +27,23 @@ public class Bot {
     public void handle(Input command, Output output) {
         for (Handler handler : handlers) {
             if (handler.supports(command)) {
-                channelRepository.addChannel(command.channel());
-
-                handler.handle(command, output);
+                invokeHandler(command, output, handler);
 
                 return;
             }
         }
+    }
+
+    /**
+     * Middleware wannabe. Avoiding overkill for now.
+     */
+    private void invokeHandler(Input command, Output output, Handler handler) {
+        channelRepository.addChannel(command.channel());
+
+        if (!channelRepository.isActive(command.channel())) {
+            return;
+        }
+
+        handler.handle(command, output);
     }
 }

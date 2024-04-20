@@ -15,13 +15,15 @@ public class ChannelRepository {
     }
 
     public List<Channel> list() {
-        Collection queryResult = db.fetchByQuery("SELECT id FROM channels WHERE is_public=true");
+        Collection queryResult = db.fetchByQuery("SELECT id FROM channels WHERE is_public=true AND is_active=true");
 
         List<Channel> channels = new ArrayList<>();
         while (queryResult.next()) {
             String channelId = queryResult.getCurrentEntryProp("id");
             channels.add(new Channel(channelId, true));
         }
+
+        queryResult.free();
 
         return channels;
     }
@@ -34,5 +36,34 @@ public class ChannelRepository {
                     put(2, channel.isPublic());
                 }}
         );
+    }
+
+    public void activateChannel(Channel channel, boolean active) {
+        db.executeQuery(
+                "UPDATE channels SET is_active=? WHERE id=?",
+                new HashMap<>(){{
+                    put(1, active);
+                    put(2, channel.id);
+                }}
+        );
+    }
+
+    public boolean isActive(Channel channel) {
+        Collection queryResult = db.fetchByQuery("SELECT is_active FROM channels WHERE id=?",
+                new HashMap<>(){{
+                    put(1, channel.id);
+                }}
+        );
+
+        if (!queryResult.next()) {
+            queryResult.free();
+
+            return false;
+        }
+
+        boolean isActive = queryResult.getCurrentEntryProp("is_active");
+        queryResult.free();
+
+        return isActive;
     }
 }

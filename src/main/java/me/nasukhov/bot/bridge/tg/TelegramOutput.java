@@ -1,11 +1,16 @@
 package me.nasukhov.bot.bridge.tg;
 
+import me.nasukhov.ServiceLocator;
+import me.nasukhov.bot.bridge.IOResolver;
+import me.nasukhov.bot.io.BotLeftChannel;
 import me.nasukhov.bot.io.Output;
+import me.nasukhov.event.Dispatcher;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +43,9 @@ public final class TelegramOutput implements Output {
         try {
             api.execute(message);
         } catch (TelegramApiException e) {
+            if (handleError(e)) {
+                return;
+            }
             // TODO
             e.printStackTrace();
         }
@@ -53,6 +61,9 @@ public final class TelegramOutput implements Output {
         try {
             api.execute(message);
         } catch (TelegramApiException e) {
+            if (handleError(e)) {
+                return;
+            }
             // TODO
             e.printStackTrace();
         }
@@ -123,5 +134,23 @@ public final class TelegramOutput implements Output {
         } catch (TelegramApiException e) {
             return Optional.empty();
         }
+    }
+
+    private boolean handleError(TelegramApiException error) {
+        if (!(error instanceof TelegramApiRequestException)) {
+            return false;
+        }
+
+        int errorCode = ((TelegramApiRequestException) error).getErrorCode();
+        // Both cases mean that either bot no longer has access to chat
+        if (errorCode != 400 && errorCode != 403) {
+            return false;
+        }
+
+        ServiceLocator.instance
+                .locate(Dispatcher.class)
+                .signal(new BotLeftChannel(IOResolver.telegramChannel(chatId, true)));
+
+        return true;
     }
 }

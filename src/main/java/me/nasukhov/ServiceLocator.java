@@ -1,11 +1,15 @@
 package me.nasukhov;
 
 import me.nasukhov.bot.Bot;
+import me.nasukhov.bot.bridge.event.DisableForChannelSubscriber;
+import me.nasukhov.bot.bridge.event.EnableForChannelSubscriber;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
 import me.nasukhov.bot.command.*;
 import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
+import me.nasukhov.event.Dispatcher;
+import me.nasukhov.event.EventBus;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.QuestionRepository;
 
@@ -54,6 +58,7 @@ public final class ServiceLocator {
         initializers.put(AskQuestion.class, new SharedProvider<>(this::askQuestionHandler));
         initializers.put(AnswerQuestion.class, this::answerQuestionHandler);
         initializers.put(CheckProgress.class, this::checkProgressHandler);
+        initializers.put(Dispatcher.class, new SharedProvider<>(this::eventBus));
 
         // TODO looks weird
         if (instance == null) {
@@ -129,7 +134,7 @@ public final class ServiceLocator {
     private Telegram telegramBot() {
         String botToken = System.getenv("TG_BOT_TOKEN");
 
-        return new Telegram(botToken, locate(Bot.class));
+        return new Telegram(botToken, locate(Bot.class), locate(Dispatcher.class));
     }
 
     private Connection connection() {
@@ -138,5 +143,14 @@ public final class ServiceLocator {
         String password = System.getenv("DATABASE_PASSWORD");
 
         return new Connection(url, username, password);
+    }
+
+    private Dispatcher eventBus() {
+        EventBus instance = new EventBus();
+
+        instance.addSubscriber(new DisableForChannelSubscriber(locate(ChannelRepository.class)));
+        instance.addSubscriber(new EnableForChannelSubscriber(locate(ChannelRepository.class)));
+
+        return instance;
     }
 }

@@ -1,6 +1,6 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.bridge.OutputResolver;
+import me.nasukhov.bot.bridge.IOResolver;
 import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Input;
@@ -93,6 +93,6 @@ public class LearnFact implements Handler {
     }
 
     private void shareFact(String fact, Channel with) {
-        OutputResolver.resolveFor(with).write(fact);
+        IOResolver.resolveFor(with).write(fact);
     }
 }

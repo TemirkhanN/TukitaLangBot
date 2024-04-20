@@ -1,6 +1,6 @@
 package me.nasukhov.bot.command;
 
-import me.nasukhov.bot.bridge.OutputResolver;
+import me.nasukhov.bot.bridge.IOResolver;
 import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Input;
@@ -44,7 +44,7 @@ public class AskQuestion implements Handler {
             }
 
             for (Channel channel : channelRepository.list()) {
-                ask(channel, OutputResolver.resolveFor(channel));
+                ask(channel, IOResolver.resolveFor(channel));
             }
         };
 
