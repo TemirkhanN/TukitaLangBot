@@ -4,7 +4,7 @@ import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
 import me.nasukhov.bot.io.User;
-import me.nasukhov.study.ChannelQuestion;
+import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,7 +100,7 @@ public class AnswerQuestionTest {
     public void testHandleIncorrectAnswer() {
         UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
 
-        ChannelQuestion channelQuestion = new ChannelQuestion(
+        GroupQuestion groupQuestion = new GroupQuestion(
                 questionId,
                 new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
                     add("thirteen");
@@ -116,7 +116,7 @@ public class AnswerQuestionTest {
         );
 
         when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(groupQuestion));
 
         handler.handle(input, output);
 
@@ -128,7 +128,7 @@ public class AnswerQuestionTest {
     public void testHandleCorrectAnswer() {
         UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
 
-        ChannelQuestion channelQuestion = new ChannelQuestion(
+        GroupQuestion groupQuestion = new GroupQuestion(
                 questionId,
                 new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
                     add("thirteen");
@@ -144,7 +144,7 @@ public class AnswerQuestionTest {
         );
 
         when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(groupQuestion));
 
         handler.handle(input, output);
 
@@ -156,7 +156,7 @@ public class AnswerQuestionTest {
     public void testHandleCorrectAnswerInDirectMessages() {
         UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
 
-        ChannelQuestion channelQuestion = new ChannelQuestion(
+        GroupQuestion groupQuestion = new GroupQuestion(
                 questionId,
                 new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
                     add("thirteen");
@@ -172,7 +172,7 @@ public class AnswerQuestionTest {
         );
 
         when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(groupQuestion));
 
         handler.handle(input, output);
 
@@ -185,7 +185,7 @@ public class AnswerQuestionTest {
     public void testHandleIncorrectAnswerInDirectMessages() {
         UUID questionId = UUID.fromString("9b740f73-2766-4d31-9029-c910759ad41b");
 
-        ChannelQuestion channelQuestion = new ChannelQuestion(
+        GroupQuestion groupQuestion = new GroupQuestion(
                 questionId,
                 new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
                     add("thirteen");
@@ -201,7 +201,7 @@ public class AnswerQuestionTest {
         );
 
         when(progressRepository.hasReplyInChannel("SomeUserId", "SomeChannelId", questionId)).thenReturn(false);
-        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.findQuestionInChannel(questionId)).thenReturn(Optional.of(groupQuestion));
 
         handler.handle(input, output);
 

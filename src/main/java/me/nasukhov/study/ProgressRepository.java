@@ -1,6 +1,5 @@
 package me.nasukhov.study;
 
-import me.nasukhov.bot.io.Channel;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 
@@ -15,10 +14,10 @@ public class ProgressRepository {
         this.questionRepository = questionRepository;
     }
 
-    public ChannelStats getChannelStats(Channel channel) {
-        List<UserStats> usersStats = new ArrayList<>();
+    public GroupStats getGroupStats(Group group) {
+        List<StudentStats> usersStats = new ArrayList<>();
         Map<Integer, Object> params = new HashMap<>() {{
-            put(1, channel.id);
+            put(1, group.id());
         }};
         Collection result = db.fetchByQuery("SELECT " +
                         "user_id, " +
@@ -34,7 +33,7 @@ public class ProgressRepository {
             int correctAnswers = ((Long)result.getCurrentEntryProp("correct_answers")).intValue();
             int totalAnswers = ((Long)result.getCurrentEntryProp("total_answers")).intValue();
             usersStats.add(
-                    new UserStats(
+                    new StudentStats(
                             result.getCurrentEntryProp("user_id"),
                             correctAnswers,
                             totalAnswers - correctAnswers
@@ -44,12 +43,12 @@ public class ProgressRepository {
 
         result.free();
 
-        return new ChannelStats(usersStats);
+        return new GroupStats(group, usersStats);
     }
 
-    public int getLastLearnedWordId(Channel by) {
+    public int getLastLearnedWordId(Group by) {
         Map<Integer, Object> params = new HashMap<>() {{
-            put(1, by.id);
+            put(1, by.id());
         }};
 
         Collection result = db.fetchByQuery("SELECT word_id FROM learned_words WHERE channel_id=? ORDER BY learned_at DESC LIMIT 1", params);
@@ -62,12 +61,12 @@ public class ProgressRepository {
         return wordId;
     }
 
-    public void setLastLearnedWords(Channel by, List<Integer> wordIds) {
+    public void setLastLearnedWords(Group by, List<Integer> wordIds) {
         for (Integer wordId : wordIds) {
             db.executeQuery(
                     "INSERT INTO learned_words(channel_id, word_id, learned_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
                     new HashMap<>() {{
-                        put(1, by.id);
+                        put(1, by.id());
                         put(2, wordId);
                     }}
             );
@@ -82,11 +81,11 @@ public class ProgressRepository {
         return questionRepository.hasReplyInChannel(userId, channelId, channelQuestionId);
     }
 
-    public Optional<ChannelQuestion> createRandomForChannel(String channelId) {
+    public Optional<GroupQuestion> createRandomForChannel(String channelId) {
         return questionRepository.createRandomForChannel(channelId);
     }
 
-    public Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
+    public Optional<GroupQuestion> findQuestionInChannel(UUID channelQuestionId) {
         return questionRepository.findQuestionInChannel(channelQuestionId);
     }
 }

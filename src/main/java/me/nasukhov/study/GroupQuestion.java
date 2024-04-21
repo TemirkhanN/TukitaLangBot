@@ -3,12 +3,12 @@ package me.nasukhov.study;
 import java.util.List;
 import java.util.UUID;
 
-public final class ChannelQuestion {
+public final class GroupQuestion {
     private final UUID id;
     private final Question question;
 
     // TODO could id generation encapsulation make it better?
-    public ChannelQuestion(UUID id, Question question) {
+    public GroupQuestion(UUID id, Question question) {
         this.id = id;
         this.question = question;
     }

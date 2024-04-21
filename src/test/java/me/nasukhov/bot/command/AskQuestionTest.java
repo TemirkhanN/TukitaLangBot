@@ -1,7 +1,7 @@
 package me.nasukhov.bot.command;
 
 import me.nasukhov.bot.io.*;
-import me.nasukhov.study.ChannelQuestion;
+import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Question;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class AskQuestionTest {
 
         UUID chQuestionId = UUID.randomUUID();
 
-        ChannelQuestion channelQuestion = new ChannelQuestion(
+        GroupQuestion groupQuestion = new GroupQuestion(
                 chQuestionId,
                 new Question(123, "2+5 equals to", "seven", new ArrayList<>(){{
                     add("thirteen");
@@ -51,7 +51,7 @@ public class AskQuestionTest {
                 }})
         );
 
-        when(progressRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(channelQuestion));
+        when(progressRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(groupQuestion));
 
         handler.handle(input, output);
 

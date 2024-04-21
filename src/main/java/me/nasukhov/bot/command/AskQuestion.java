@@ -5,7 +5,7 @@ import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
-import me.nasukhov.study.ChannelQuestion;
+import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.Time;
 
@@ -34,7 +34,6 @@ public class AskQuestion implements Handler {
     }
 
     private void registerTasks() {
-
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
         Runnable autoAskQuestionInGroups = () -> {
@@ -57,7 +56,7 @@ public class AskQuestion implements Handler {
     }
 
     private void ask(Channel channel, Output output) {
-        Optional<ChannelQuestion> result = progressRepository.createRandomForChannel(channel.id);
+        Optional<GroupQuestion> result = progressRepository.createRandomForChannel(channel.id);
 
         if (result.isEmpty()) {
             // TODO share summary. reset progress
@@ -66,7 +65,7 @@ public class AskQuestion implements Handler {
             return;
         }
 
-        ChannelQuestion newQuestion = result.get();
+        GroupQuestion newQuestion = result.get();
 
         Map<String, String> replies = new HashMap<>();
         int optionNum = 0;

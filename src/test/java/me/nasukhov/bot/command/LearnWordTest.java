@@ -7,6 +7,7 @@ import me.nasukhov.bot.io.User;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.PartOfSpeech;
 import me.nasukhov.dictionary.Word;
+import me.nasukhov.study.Group;
 import me.nasukhov.study.ProgressRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,14 +57,16 @@ public class LearnWordTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
+        Group group = new Group(input.channel().id);
+
         int lastLearnedWordId = 123;
-        when(progressRepository.getLastLearnedWordId(input.channel())).thenReturn(lastLearnedWordId);
+        when(progressRepository.getLastLearnedWordId(group)).thenReturn(lastLearnedWordId);
         when(dictionaryRepository.getChunk(MAX_AMOUNT_OF_WORDS_PER_REQUEST, lastLearnedWordId)).thenReturn(new ArrayList<>());
 
         handler.handle(input, output);
 
         verify(output).write("Вы изучили все слова из нашего словаря - больше новых слов нет.");
-        verify(progressRepository).getLastLearnedWordId(input.channel());
+        verify(progressRepository).getLastLearnedWordId(group);
         verifyNoMoreInteractions(progressRepository);
     }
 
@@ -76,8 +79,9 @@ public class LearnWordTest {
                 new User("SomeUserId", "SomeUserName")
         );
 
+        Group group = new Group(input.channel().id);
         int lastLearnedWordId = 0;
-        when(progressRepository.getLastLearnedWordId(input.channel())).thenReturn(lastLearnedWordId);
+        when(progressRepository.getLastLearnedWordId(group)).thenReturn(lastLearnedWordId);
         when(dictionaryRepository.getChunk(MAX_AMOUNT_OF_WORDS_PER_REQUEST, lastLearnedWordId)).thenReturn(new ArrayList<>(){{
             add(new Word(124, "Word1", "Translation1", "Description1", PartOfSpeech.NOUN));
             add(new Word(125, "Word2", "Translation2", "Description2", PartOfSpeech.NOUN));
@@ -86,8 +90,8 @@ public class LearnWordTest {
         handler.handle(input, output);
 
         verify(output).write("Word1 - Translation1\n\nWord2 - Translation2");
-        verify(progressRepository).getLastLearnedWordId(input.channel());
-        verify(progressRepository).setLastLearnedWords(input.channel(), List.of(124, 125));
+        verify(progressRepository).getLastLearnedWordId(group);
+        verify(progressRepository).setLastLearnedWords(group, List.of(124, 125));
         verifyNoMoreInteractions(progressRepository);
     }
 }

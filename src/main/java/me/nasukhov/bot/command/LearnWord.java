@@ -2,6 +2,7 @@ package me.nasukhov.bot.command;
 
 import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
+import me.nasukhov.study.Group;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.dictionary.Word;
@@ -31,7 +32,8 @@ public class LearnWord implements Handler {
             return;
         }
 
-        int lastLearnedWord = progressRepository.getLastLearnedWordId(input.channel());
+        Group group = new Group(input.channel().id);
+        int lastLearnedWord = progressRepository.getLastLearnedWordId(group);
         List<Integer> newWordsIds = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
@@ -52,7 +54,7 @@ public class LearnWord implements Handler {
             return;
         }
 
-        progressRepository.setLastLearnedWords(input.channel(), newWordsIds);
+        progressRepository.setLastLearnedWords(group, newWordsIds);
 
         // Removing trailing newlines
         sb.delete(sb.length() - 2, sb.length());

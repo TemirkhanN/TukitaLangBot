@@ -3,7 +3,7 @@ package me.nasukhov.bot.command;
 import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
-import me.nasukhov.study.ChannelQuestion;
+import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
 
 import java.util.*;
@@ -46,12 +46,12 @@ public class AnswerQuestion implements Handler {
             return;
         }
 
-        Optional<ChannelQuestion> result = progressRepository.findQuestionInChannel(channelQuestionId);
+        Optional<GroupQuestion> result = progressRepository.findQuestionInChannel(channelQuestionId);
         if (result.isEmpty()) {
             return;
         }
 
-        ChannelQuestion question = result.get();
+        GroupQuestion question = result.get();
 
         int selectedOption = Integer.parseInt(parts[3]);
         boolean isCorrectAnswer = question.isCorrectAnswer(selectedOption);

@@ -5,6 +5,7 @@ import me.nasukhov.dictionary.Word;
 
 import java.util.*;
 
+// TODO this class is more relevant to general configuration rather than study plan
 public class GenerateQuestion {
     private static final int MAX_WORDS = 10000;
 

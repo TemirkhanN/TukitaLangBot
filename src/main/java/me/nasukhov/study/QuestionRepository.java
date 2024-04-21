@@ -56,7 +56,7 @@ public class QuestionRepository {
         return hasReply;
     }
 
-    Optional<ChannelQuestion> findQuestionInChannel(UUID channelQuestionId) {
+    Optional<GroupQuestion> findQuestionInChannel(UUID channelQuestionId) {
         Collection result = db.fetchByQuery("" +
                         "SELECT q.* FROM questions q" +
                         " INNER JOIN ch_questions cq ON cq.question_id=q.id" +
@@ -74,10 +74,10 @@ public class QuestionRepository {
         Question question = mapData(result);
         result.free();
 
-        return Optional.of(new ChannelQuestion(channelQuestionId, question));
+        return Optional.of(new GroupQuestion(channelQuestionId, question));
     }
 
-    Optional<ChannelQuestion> createRandomForChannel(String channelId) {
+    Optional<GroupQuestion> createRandomForChannel(String channelId) {
         Collection result = db.fetchByQuery(
                 "SELECT q.* FROM questions q" +
                         " LEFT JOIN ch_questions cq" +
@@ -107,7 +107,7 @@ public class QuestionRepository {
                 }}
         );
 
-        return Optional.of(new ChannelQuestion(uuid, question));
+        return Optional.of(new GroupQuestion(uuid, question));
     }
 
     private Question mapData(Collection result) {
