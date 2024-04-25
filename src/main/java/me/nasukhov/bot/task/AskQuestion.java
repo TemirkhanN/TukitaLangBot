@@ -1,40 +1,49 @@
-package me.nasukhov.bot.command;
+package me.nasukhov.bot.task;
 
+import me.nasukhov.bot.bridge.IOResolver;
 import me.nasukhov.bot.io.Channel;
-import me.nasukhov.bot.io.Input;
+import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Output;
 import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
+import me.nasukhov.study.Time;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
-public class AskQuestion implements Handler {
-    private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
+public class AskQuestion implements Task {
+    private final Frequency frequency;
+    private final ChannelRepository channelRepository;
     private final ProgressRepository progressRepository;
 
-    public AskQuestion(ProgressRepository progressRepository) {
+    public AskQuestion(ChannelRepository channelRepository, ProgressRepository progressRepository) {
+        frequency = new Frequency(1, TimeUnit.MINUTES);
+        this.channelRepository = channelRepository;
         this.progressRepository = progressRepository;
     }
 
     @Override
-    public boolean supports(Input input) {
-        return input.isDirectCommand("ask");
+    public Frequency frequency() {
+        return frequency;
     }
 
     @Override
-    public void handle(Input input, Output output) {
-        ask(input.channel(), output);
+    public void run() {
+        // We don't want it to work at night
+        if (Time.isOffHours()) {
+            return;
+        }
+
+        for (Channel channel : channelRepository.list()) {
+            ask(channel);
+        }
     }
 
-    private void ask(Channel channel, Output output) {
+    public void ask(Channel channel) {
         Optional<GroupQuestion> result = progressRepository.createRandomForChannel(channel.id);
-
         if (result.isEmpty()) {
-            // TODO share summary. reset progress
-            output.write(NO_MORE_QUESTIONS_LEFT);
-
             return;
         }
 
@@ -46,6 +55,7 @@ public class AskQuestion implements Handler {
             replies.put(replyVariant, String.format("qh answer %s %d", newQuestion.getId().toString(), ++optionNum));
         }
 
+        Output output = IOResolver.resolveFor(channel);
         output.promptChoice(newQuestion.getText(), replies);
     }
 }

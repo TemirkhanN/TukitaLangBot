@@ -19,27 +19,19 @@ public class AskQuestionTest {
     private static final String TEMPLATE_ASK_QUESTION = "qh answer %s %d";
     private AskQuestion handler;
     private ProgressRepository progressRepository;
-    private ChannelRepository channelRepository;
     private Output output;
 
     @BeforeEach
     void setup() {
         output = mock(Output.class);
         progressRepository = mock(ProgressRepository.class);
-        channelRepository = mock(ChannelRepository.class);
 
-        handler = new AskQuestion(progressRepository, channelRepository);
+        handler = new AskQuestion(progressRepository);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"/ask", "/ask@botName"})
     void testHandleAsk(String rawInput) {
-        Input input = new Input(
-                rawInput,
-                new Channel("SomeChannelId"),
-                new User("SomeUserId", "SomeUserName")
-        );
-
         UUID chQuestionId = UUID.randomUUID();
 
         GroupQuestion groupQuestion = new GroupQuestion(
@@ -53,6 +45,11 @@ public class AskQuestionTest {
 
         when(progressRepository.createRandomForChannel("SomeChannelId")).thenReturn(Optional.of(groupQuestion));
 
+        Input input = new Input(
+                rawInput,
+                new Channel("SomeChannelId"),
+                new User("SomeUserId", "SomeUserName")
+        );
         handler.handle(input, output);
 
         verify(output, only()).promptChoice("2+5 equals to", new HashMap<>() {{

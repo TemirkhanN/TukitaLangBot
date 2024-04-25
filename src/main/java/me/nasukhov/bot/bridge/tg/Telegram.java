@@ -24,6 +24,7 @@ public class Telegram extends TelegramLongPollingBot {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
+            bot.runTasks();
         } catch (TelegramApiException e) {
             e.printStackTrace();
         } catch (Exception e) {
