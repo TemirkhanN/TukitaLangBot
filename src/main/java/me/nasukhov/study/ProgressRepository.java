@@ -51,10 +51,10 @@ public class ProgressRepository {
             put(1, by.id());
         }};
 
-        Collection result = db.fetchByQuery("SELECT word_id FROM learned_words WHERE channel_id=? ORDER BY learned_at DESC LIMIT 1", params);
+        Collection result = db.fetchByQuery("SELECT resource_id FROM learned_resources WHERE group_id=? AND resource_type='word' ORDER BY learned_at DESC LIMIT 1", params);
         int wordId = 0;
         if (result.next()) {
-            wordId = result.getCurrentEntryProp("word_id");
+            wordId = result.getCurrentEntryProp("resource_id");
         }
         result.free();
 
@@ -64,7 +64,7 @@ public class ProgressRepository {
     public void setLastLearnedWords(Group by, List<Integer> wordIds) {
         for (Integer wordId : wordIds) {
             db.executeQuery(
-                    "INSERT INTO learned_words(channel_id, word_id, learned_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
+                    "INSERT INTO learned_resources(group_id, resource_id, resource_type, learned_at) VALUES (?, ?, 'word', CURRENT_TIMESTAMP)",
                     new HashMap<>() {{
                         put(1, by.id());
                         put(2, wordId);
@@ -87,5 +87,29 @@ public class ProgressRepository {
 
     public Optional<GroupQuestion> findQuestionInChannel(UUID channelQuestionId) {
         return questionRepository.findQuestionInChannel(channelQuestionId);
+    }
+
+    public Optional<String> nextRandomFact(Group group) {
+        Map<Integer, Object> params = new HashMap<>() {{
+            put(1, group.id());
+        }};
+
+        Collection result = db.fetchByQuery("SELECT f.id as factId, f.text as fact FROM facts f LEFT JOIN learned_resources lr ON lr.group_id=? AND lr.resource_id=f.id AND lr.resource_type='fact' WHERE lr.id IS NULL LIMIT 1", params);
+        if (result.next()) {
+            int factId = result.getCurrentEntryProp("factId");
+
+            db.executeQuery(
+                    "INSERT INTO learned_resources(group_id, resource_id, resource_type, learned_at) VALUES (?, ?, 'fact', CURRENT_TIMESTAMP)",
+                    new HashMap<>() {{
+                        put(1, group.id());
+                        put(2, factId);
+                    }}
+            );
+
+            return Optional.of(result.getCurrentEntryProp("fact"));
+        }
+        result.free();
+
+        return Optional.empty();
     }
 }

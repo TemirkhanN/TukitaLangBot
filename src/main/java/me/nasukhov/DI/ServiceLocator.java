@@ -125,7 +125,7 @@ public final class ServiceLocator {
     }
 
     private ShareFact shareFact() {
-        return new ShareFact(locate(ChannelRepository.class));
+        return new ShareFact(locate(ProgressRepository.class));
     }
 
     private TaskManager taskManager() {
