@@ -1,39 +1,19 @@
-package me.nasukhov;
+package me.nasukhov.DI;
 
 import me.nasukhov.bot.Bot;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.bridge.tg.Telegram;
 import me.nasukhov.bot.command.*;
 import me.nasukhov.bot.task.ShareFact;
+import me.nasukhov.bot.task.TaskManager;
 import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
 import me.nasukhov.study.ProgressRepository;
 import me.nasukhov.study.QuestionRepository;
 
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-
-final class SharedProvider<T> implements Supplier<T>{
-    private final Supplier<T> initializer;
-
-    private T instance;
-
-    SharedProvider(Supplier<T> initializer) {
-        this.initializer = initializer;
-    }
-
-    @Override
-    @NotNull
-    public T get() {
-        if (instance == null) {
-            instance = initializer.get();
-        }
-
-        return instance;
-    }
-}
 
 public final class ServiceLocator {
     public static ServiceLocator instance;
@@ -56,9 +36,9 @@ public final class ServiceLocator {
         initializers.put(AskQuestion.class, new SharedProvider<>(this::askQuestionHandler));
         initializers.put(AnswerQuestion.class, new SharedProvider<>(this::answerQuestionHandler));
         initializers.put(CheckProgress.class, new SharedProvider<>(this::checkProgressHandler));
-        // It doesn't make difference if it is shared or not, but non-shared makes a bit more sense for some reason.
-        initializers.put(me.nasukhov.bot.task.AskQuestion.class, this::askQuestionTask);
-        initializers.put(ShareFact.class, this::shareFact);
+        initializers.put(TaskManager.class, new SharedProvider<>(this::taskManager));
+        initializers.put(me.nasukhov.bot.task.AskQuestion.class, new SharedProvider<>(this::askQuestionTask));
+        initializers.put(ShareFact.class, new SharedProvider<>(this::shareFact));
 
         // TODO looks weird
         if (instance == null) {
@@ -85,14 +65,11 @@ public final class ServiceLocator {
     }
 
     private Bot bot() {
-        Bot declaration = new Bot(locate(ChannelRepository.class));
+        Bot declaration = new Bot(locate(ChannelRepository.class), locate(TaskManager.class));
         declaration.addHandler(locate(LearnWord.class));
         declaration.addHandler(locate(AnswerQuestion.class));
         declaration.addHandler(locate(AskQuestion.class));
         declaration.addHandler(locate(CheckProgress.class));
-
-        declaration.addTask(locate(me.nasukhov.bot.task.AskQuestion.class));
-        declaration.addTask(locate(ShareFact.class));
 
         return declaration;
     }
@@ -144,10 +121,18 @@ public final class ServiceLocator {
     }
 
     private me.nasukhov.bot.task.AskQuestion askQuestionTask() {
-        return new me.nasukhov.bot.task.AskQuestion(locate(ChannelRepository.class), locate(ProgressRepository.class));
+        return new me.nasukhov.bot.task.AskQuestion(locate(ProgressRepository.class));
     }
 
     private ShareFact shareFact() {
         return new ShareFact(locate(ChannelRepository.class));
+    }
+
+    private TaskManager taskManager() {
+        TaskManager taskManager = new TaskManager(locate(Connection.class));
+        taskManager.registerRunner(locate(ShareFact.class));
+        taskManager.registerRunner(locate(me.nasukhov.bot.task.AskQuestion.class));
+
+        return taskManager;
     }
 }

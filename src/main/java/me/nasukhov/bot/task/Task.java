@@ -1,5 +1,5 @@
 package me.nasukhov.bot.task;
 
-public interface Task extends Runnable{
-    Frequency frequency();
-}
+import me.nasukhov.bot.io.Channel;
+
+record Task(int id, String name, Channel channel, int frequency, long lastExecutedAt) {}

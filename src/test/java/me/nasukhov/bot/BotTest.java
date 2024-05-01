@@ -2,6 +2,7 @@ package me.nasukhov.bot;
 
 import me.nasukhov.bot.command.Handler;
 import me.nasukhov.bot.io.*;
+import me.nasukhov.bot.task.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ public class BotTest {
     void setup() {
         output = mock(Output.class);
         channelRepository = mock(ChannelRepository.class);
-        bot = new Bot(channelRepository);
+        bot = new Bot(channelRepository, mock(TaskManager.class));
     }
 
     @Test

@@ -5,4 +5,4 @@ cd /app
 ./gradlew clean jar && \
 ./gradlew update && \
 ./gradlew --stop && \
-java -jar build/libs/TukitaLearner-1.0.jar
+java -jar $(find build/libs/ -type f -iname "TukitaLearner*.jar")

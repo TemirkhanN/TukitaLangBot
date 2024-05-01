@@ -1,6 +1,6 @@
 package me.nasukhov.bot.io;
 
-import me.nasukhov.ServiceLocator;
+import me.nasukhov.DI.ServiceLocator;
 
 public class Channel {
     public final String id;

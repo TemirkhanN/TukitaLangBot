@@ -2,7 +2,6 @@ package me.nasukhov.bot.task;
 
 import me.nasukhov.bot.bridge.IOResolver;
 import me.nasukhov.bot.io.Channel;
-import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Output;
 import me.nasukhov.study.GroupQuestion;
 import me.nasukhov.study.ProgressRepository;
@@ -11,34 +10,31 @@ import me.nasukhov.study.Time;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-public class AskQuestion implements Task {
-    private final Frequency frequency;
-    private final ChannelRepository channelRepository;
+public class AskQuestion implements TaskRunner {
     private final ProgressRepository progressRepository;
 
-    public AskQuestion(ChannelRepository channelRepository, ProgressRepository progressRepository) {
-        frequency = new Frequency(1, TimeUnit.MINUTES);
-        this.channelRepository = channelRepository;
+    public AskQuestion(ProgressRepository progressRepository) {
         this.progressRepository = progressRepository;
     }
 
     @Override
-    public Frequency frequency() {
-        return frequency;
+    public String subscribesFor() {
+        return "ask_question";
     }
 
     @Override
-    public void run() {
+    public void runTask(Task task) {
+        if (!subscribesFor().equals(task.name())) {
+            throw new RuntimeException("Runner does not know how to execute the given task");
+        }
+
         // We don't want it to work at night
         if (Time.isOffHours()) {
             return;
         }
 
-        for (Channel channel : channelRepository.list()) {
-            ask(channel);
-        }
+        ask(task.channel());
     }
 
     public void ask(Channel channel) {

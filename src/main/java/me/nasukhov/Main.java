@@ -1,5 +1,6 @@
 package me.nasukhov;
 
+import me.nasukhov.DI.ServiceLocator;
 import me.nasukhov.bot.bridge.tg.Telegram;
 
 public class Main {

@@ -7,9 +7,8 @@ import me.nasukhov.bot.io.ChannelRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-public class ShareFact implements Task {
+public class ShareFact implements TaskRunner {
     private static final List<String> facts = new ArrayList<>(){{
         add("Несмотря на все изобилие букв в алфавите, не все слова тукитинского языка возможно записать. Так, например, слово \"лист\" произносится \"аль-и\". Слово кипеть - \"угьугьеду\", звучит с носовым звуком, который отличается от звука \"гь\"");
         add("Тукитинский язык является племенным/трибальным языком. По этой причине глаголы в нем часто созвучны с действием, которое они обозначают. \n" +
@@ -60,26 +59,22 @@ public class ShareFact implements Task {
 
     private int latestShared;
 
-    private final ChannelRepository channelRepository;
-
-
     public ShareFact(ChannelRepository channelRepository) {
         Random random = new Random();
         latestShared = random.nextInt(facts.size());
-        this.channelRepository = channelRepository;
-    }
-    @Override
-    public Frequency frequency() {
-        return new Frequency(2, TimeUnit.DAYS);
     }
 
     @Override
-    public void run() {
+    public String subscribesFor() {
+        return "share_fact";
+    }
+
+    @Override
+    public void runTask(Task task) {
+        // TODO fetch shared details from repo
         String fact = facts.get(latestShared);
         latestShared = (latestShared + 1) % facts.size();
-        for (Channel channel: channelRepository.list()) {
-            shareFact(fact, channel);
-        }
+        shareFact(fact, task.channel());
     }
 
     private void shareFact(String fact, Channel with) {

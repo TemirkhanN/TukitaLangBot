@@ -1,5 +1,6 @@
 package me.nasukhov;
 
+import me.nasukhov.DI.ServiceLocator;
 import me.nasukhov.db.Collection;
 import me.nasukhov.db.Connection;
 import me.nasukhov.dictionary.DictionaryRepository;
