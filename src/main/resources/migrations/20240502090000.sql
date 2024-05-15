@@ -1,0 +1,1 @@
+CREATE INDEX tasks_channel_id_idx ON tasks(channel_id);

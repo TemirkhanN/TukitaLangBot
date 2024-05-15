@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Collection {
+public class Collection implements AutoCloseable {
     private ResultSet rs;
     private Statement stmt;
     private boolean isFreed;
@@ -60,5 +60,10 @@ public class Collection {
         stmt = null;
         rs = null;
         isFreed = true;
+    }
+
+    @Override
+    public void close()  throws Exception{
+        free();
     }
 }

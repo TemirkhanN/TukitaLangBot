@@ -39,6 +39,7 @@ public final class ServiceLocator {
         initializers.put(TaskManager.class, new SharedProvider<>(this::taskManager));
         initializers.put(me.nasukhov.bot.task.AskQuestion.class, new SharedProvider<>(this::askQuestionTask));
         initializers.put(ShareFact.class, new SharedProvider<>(this::shareFact));
+        initializers.put(Configure.class, new SharedProvider<>(this::configurator));
 
         // TODO looks weird
         if (instance == null) {
@@ -70,6 +71,7 @@ public final class ServiceLocator {
         declaration.addHandler(locate(AnswerQuestion.class));
         declaration.addHandler(locate(AskQuestion.class));
         declaration.addHandler(locate(CheckProgress.class));
+        declaration.addHandler(locate(Configure.class));
 
         return declaration;
     }
@@ -134,5 +136,9 @@ public final class ServiceLocator {
         taskManager.registerRunner(locate(me.nasukhov.bot.task.AskQuestion.class));
 
         return taskManager;
+    }
+
+    private Configure configurator() {
+        return new Configure();
     }
 }
