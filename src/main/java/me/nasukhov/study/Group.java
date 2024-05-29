@@ -5,6 +5,6 @@ import me.nasukhov.db.Connection;
 
 public record Group(String id) {
     public Preferences preferences() {
-        return new Preferences(this, ServiceLocator.instance.locate(Connection.class));
+        return new Preferences(this, ServiceLocator.getInstance().locate(Connection.class));
     }
 }

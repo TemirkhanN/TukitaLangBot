@@ -6,6 +6,7 @@ import me.nasukhov.db.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class ChannelRepository {
     private final Connection db;
@@ -28,7 +29,7 @@ public class ChannelRepository {
         return channels;
     }
 
-    public void addChannel(Channel channel) {
+    public void saveChannel(Channel channel) {
         db.executeQuery(
                 "INSERT INTO channels(id, is_public, added_at) VALUES(?, ?, CURRENT_TIMESTAMP) ON CONFLICT (id) DO NOTHING",
                 new HashMap<>() {{
@@ -66,5 +67,25 @@ public class ChannelRepository {
         queryResult.free();
 
         return isActive;
+    }
+
+    public Optional<Channel> findById(String id) {
+        Collection queryResult = db.fetchByQuery("SELECT id, is_public FROM channels WHERE id = ?", new HashMap<>() {{
+            put(1, id);
+        }});
+
+        if (!queryResult.next()) {
+            queryResult.free();
+
+            return Optional.empty();
+        }
+
+        String channelId = queryResult.getCurrentEntryProp("id");
+        boolean isPublic = queryResult.getCurrentEntryProp("is_public");
+        Channel result = new Channel(channelId, isPublic);
+
+        queryResult.free();
+
+        return Optional.of(result);
     }
 }

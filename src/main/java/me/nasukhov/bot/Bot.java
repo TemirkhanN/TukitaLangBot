@@ -1,6 +1,7 @@
 package me.nasukhov.bot;
 
 import me.nasukhov.bot.command.Handler;
+import me.nasukhov.bot.io.Channel;
 import me.nasukhov.bot.io.ChannelRepository;
 import me.nasukhov.bot.io.Input;
 import me.nasukhov.bot.io.Output;
@@ -34,24 +35,23 @@ public class Bot {
 
     // TODO remove output and use output resolver
     public void handle(Input command, Output output) {
-        if (!channelRepository.isActive(command.channel())) {
-            return;
+        Channel channel = command.channel();
+        if (channel.isRegistered()) {
+            if (!channel.isActive()) {
+                return;
+            }
+        } else {
+            // TODO event driven or something. This domain is a bit leaky
+            channelRepository.saveChannel(channel);
+            taskManager.registerTasks(channel);
         }
 
         for (Handler handler : handlers) {
             if (handler.supports(command)) {
-                invokeHandler(command, output, handler);
+                handler.handle(command, output);
 
                 return;
             }
         }
-    }
-
-    /**
-     * Middleware wannabe. Avoiding overkill for now.
-     */
-    private void invokeHandler(Input command, Output output, Handler handler) {
-        channelRepository.addChannel(command.channel());
-        handler.handle(command, output);
     }
 }

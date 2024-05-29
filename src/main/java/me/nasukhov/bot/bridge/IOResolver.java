@@ -13,7 +13,7 @@ public class IOResolver {
         if (isTelegramChannel(channel)) {
             return new TelegramOutput(
                     Long.parseLong(channel.id.substring(TG_PREFIX.length())),
-                    ServiceLocator.instance.locate(Telegram.class)
+                    ServiceLocator.getInstance().locate(Telegram.class)
             );
         }
 

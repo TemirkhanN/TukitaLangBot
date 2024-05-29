@@ -63,7 +63,7 @@ public class Collection implements AutoCloseable {
     }
 
     @Override
-    public void close()  throws Exception{
+    public void close() throws Exception{
         free();
     }
 }

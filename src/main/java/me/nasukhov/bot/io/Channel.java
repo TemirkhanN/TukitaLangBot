@@ -21,14 +21,18 @@ public class Channel {
     }
 
     public boolean isActive() {
-        return ServiceLocator.instance.locate(ChannelRepository.class).isActive(this);
+        return ServiceLocator.getInstance().locate(ChannelRepository.class).isActive(this);
+    }
+
+    public boolean isRegistered() {
+        return ServiceLocator.getInstance().locate(ChannelRepository.class).findById(this.id).isPresent();
     }
 
     public void activate() {
-        ServiceLocator.instance.locate(ChannelRepository.class).activateChannel(this, true);
+        ServiceLocator.getInstance().locate(ChannelRepository.class).activateChannel(this, true);
     }
 
     public void deactivate() {
-        ServiceLocator.instance.locate(ChannelRepository.class).activateChannel(this, false);
+        ServiceLocator.getInstance().locate(ChannelRepository.class).activateChannel(this, false);
     }
 }

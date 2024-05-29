@@ -60,6 +60,19 @@ public class TaskManager {
         scheduler.scheduleAtFixedRate(r, 0, 1, TimeUnit.MINUTES);
     }
 
+    public void registerTasks(Channel channel) {
+        db.executeQuery("""
+                INSERT INTO tasks(channel_id, task_name, frequency, last_executed_at, next_execution_at) VALUES
+                    (?, 'share_fact', 86400, NOW(), NOW()),
+                    (?, 'ask_question', 10800, NOW(), NOW())
+                """,
+                new HashMap<>(){{
+                    put(1, channel.id);
+                    put(2, channel.id);
+                }}
+        );
+    }
+
     private List<Task> getCurrentTasks() {
         Collection result = db.fetchByQuery("SELECT t.*, c.is_public" +
                 " FROM tasks t " +

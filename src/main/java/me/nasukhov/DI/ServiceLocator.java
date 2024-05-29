@@ -16,11 +16,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public final class ServiceLocator {
-    public static ServiceLocator instance;
+    private static ServiceLocator instance;
 
     private final Map<Class<?>, Supplier<?>> initializers;
 
     private boolean resolved = false;
+
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    public static ServiceLocator getInstance() {
+        // TODO looks weird
+        if (instance == null) {
+            instance = new ServiceLocator();
+        }
+
+        return instance;
+    }
 
     public ServiceLocator() {
         initializers = new ConcurrentHashMap<>();
@@ -40,11 +53,6 @@ public final class ServiceLocator {
         initializers.put(me.nasukhov.bot.task.AskQuestion.class, new SharedProvider<>(this::askQuestionTask));
         initializers.put(ShareFact.class, new SharedProvider<>(this::shareFact));
         initializers.put(Configure.class, new SharedProvider<>(this::configurator));
-
-        // TODO looks weird
-        if (instance == null) {
-            instance = this;
-        }
     }
 
     public <T> void addDefinition(Class<T> serviceId, T service) {
