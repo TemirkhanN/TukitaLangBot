@@ -11,17 +11,17 @@ import org.springframework.context.annotation.Configuration;
 
 @SpringBootApplication
 @Configuration
-public class Main {
+public class LearnerApp {
     private static final ServiceLocator serviceLocator = new ServiceLocator();
 
     public static void main(String[] args) {
-        var app = new SpringApplication(Main.class);
+        var app = new SpringApplication(LearnerApp.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 
     @Bean
-    public ApplicationRunner runner() {
+    public static ApplicationRunner createRunner() {
         return (args) -> {
             try {
                 serviceLocator.locate(Telegram.class).run();

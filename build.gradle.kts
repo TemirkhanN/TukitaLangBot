@@ -44,13 +44,13 @@ tasks.withType<Test> {
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes["Main-Class"] = "me.nasukhov.TukitaLearner.Main"
+        attributes["Main-Class"] = "me.nasukhov.TukitaLearner.LearnerApp"
     }
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
 }
 
 tasks.register<JavaExec>("run") {
-    mainClass.set("me.nasukhov.TukitaLearner.Main")
+    mainClass.set("me.nasukhov.TukitaLearner.LearnerApp")
     classpath = sourceSets.main.get().runtimeClasspath
 }
 
