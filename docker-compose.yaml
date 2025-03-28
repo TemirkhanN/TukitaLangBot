@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: amazoncorretto:17-alpine-jdk
+    image: amazoncorretto:21-alpine-jdk
     env_file:
       - .env
       - .env.local
