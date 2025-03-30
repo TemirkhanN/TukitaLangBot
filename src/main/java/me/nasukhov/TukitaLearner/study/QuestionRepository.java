@@ -2,9 +2,11 @@ package me.nasukhov.TukitaLearner.study;
 
 import me.nasukhov.TukitaLearner.db.Collection;
 import me.nasukhov.TukitaLearner.db.Connection;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class QuestionRepository {
     private static final String VARIANTS_DELIMITER = ";";
 

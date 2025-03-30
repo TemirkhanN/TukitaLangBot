@@ -5,9 +5,11 @@ import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class AnswerQuestion implements Handler {
     private static final String ANSWER_CORRECT = "%s, да, правильный ответ «<spoiler>%s</spoiler>».";
     private static final String ANSWER_INCORRECT = "%s, увы, правильный ответ «<spoiler>%s</spoiler>».";

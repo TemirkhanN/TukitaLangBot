@@ -3,6 +3,8 @@ package me.nasukhov.TukitaLearner.bot.bridge.tg;
 import me.nasukhov.TukitaLearner.bot.*;
 import me.nasukhov.TukitaLearner.bot.bridge.IOResolver;
 import me.nasukhov.TukitaLearner.bot.io.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
@@ -11,13 +13,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+@Component
 public class Telegram extends TelegramLongPollingBot {
     private final Bot bot;
+    private final ChannelRepository channelRepository;
 
-    public Telegram(String token, Bot bot) {
+    public Telegram(@Value("${TG_BOT_TOKEN}") String token, Bot bot, ChannelRepository channelRepository) {
         super(token);
 
         this.bot = bot;
+        this.channelRepository = channelRepository;
     }
 
     public void run() {
@@ -26,10 +31,7 @@ public class Telegram extends TelegramLongPollingBot {
             telegramBotsApi.registerBot(this);
             bot.runTasks();
         } catch (TelegramApiException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,14 +57,15 @@ public class Telegram extends TelegramLongPollingBot {
                             !update.getMyChatMember().getChat().isUserChat()
                     );
 
-                    channel.deactivate();
+                    channelRepository.activateChannel(channel, false);
                 } else if (isAddedToChannel(update)) {
                     Channel channel = IOResolver.telegramChannel(
                             update.getMyChatMember().getChat().getId(),
                             !update.getMyChatMember().getChat().isUserChat()
                     );
 
-                    channel.activate();
+
+                    channelRepository.activateChannel(channel, true);
                 }
 
                 return;

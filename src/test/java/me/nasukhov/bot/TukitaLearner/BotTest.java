@@ -1,6 +1,5 @@
 package me.nasukhov.bot.TukitaLearner;
 
-import me.nasukhov.TukitaLearner.DI.ServiceLocator;
 import me.nasukhov.TukitaLearner.bot.Bot;
 import me.nasukhov.TukitaLearner.bot.command.Handler;
 import me.nasukhov.TukitaLearner.bot.io.*;
@@ -8,6 +7,7 @@ import me.nasukhov.TukitaLearner.bot.task.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -21,10 +21,7 @@ public class BotTest {
     void setup() {
         output = mock(Output.class);
         channelRepository = mock(ChannelRepository.class);
-        bot = new Bot(channelRepository, mock(TaskManager.class));
-        ServiceLocator.resetInstance();
-        ServiceLocator locator = ServiceLocator.getInstance();
-        locator.addDefinition(ChannelRepository.class, channelRepository);
+        bot = new Bot(channelRepository, mock(TaskManager.class), List.of());
     }
 
     @Test

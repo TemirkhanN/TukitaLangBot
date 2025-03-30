@@ -6,16 +6,20 @@ import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
 import me.nasukhov.TukitaLearner.study.Time;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Component("askQuestionTask")
 public class AskQuestion implements TaskRunner {
     private final ProgressRepository progressRepository;
+    private final IOResolver ioResolver;
 
-    public AskQuestion(ProgressRepository progressRepository) {
+    public AskQuestion(ProgressRepository progressRepository, IOResolver ioResolver) {
         this.progressRepository = progressRepository;
+        this.ioResolver = ioResolver;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class AskQuestion implements TaskRunner {
             replies.put(replyVariant, String.format("qh answer %s %d", newQuestion.getId().toString(), ++optionNum));
         }
 
-        Output output = IOResolver.resolveFor(channel);
+        Output output = ioResolver.resolveFor(channel);
         output.promptChoice(newQuestion.getText(), replies);
     }
 }

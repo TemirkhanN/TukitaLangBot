@@ -1,41 +1,48 @@
 package me.nasukhov.TukitaLearner;
 
-import me.nasukhov.TukitaLearner.DI.ServiceLocator;
 import me.nasukhov.TukitaLearner.db.Collection;
 import me.nasukhov.TukitaLearner.db.Connection;
 import me.nasukhov.TukitaLearner.dictionary.DictionaryRepository;
 import me.nasukhov.TukitaLearner.dictionary.ImportDictionary;
 import me.nasukhov.TukitaLearner.study.GenerateQuestion;
 import me.nasukhov.TukitaLearner.study.QuestionRepository;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
-// TODO this is more of first-time bootstrap rather than migrator
+@Component
 public class Updater {
     private static final String MIGRATIONS_DIRECTORY = "src/main/resources/migrations";
 
-    private static final ServiceLocator serviceLocator = new ServiceLocator();
+    private final Connection db;
+    private final DictionaryRepository dictionary;
+    private final QuestionRepository questionRepository;
 
-    public static void main(String[] args) {
-        Path folder = Paths.get(MIGRATIONS_DIRECTORY);
+    public Updater(
+            Connection db,
+            DictionaryRepository dictionary,
+            QuestionRepository questionRepository
+    ) {
+        this.db = db;
+        this.dictionary = dictionary;
+        this.questionRepository = questionRepository;
+    }
 
-        try {
-            Files.walk(folder)
+    public void execute() throws IOException {
+        try (Stream<Path> paths = Files.walk(Paths.get(MIGRATIONS_DIRECTORY))) {
+            paths
                     .filter(Files::isRegularFile)
-                    .forEach(Updater::runMigration);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                    .forEach(this::runMigration);
         }
         generateData();
     }
 
-    private static void runMigration(Path migrationFile) {
-        Connection db = serviceLocator.locate(Connection.class);
-
+    private void runMigration(Path migrationFile) {
         if (!db.tableExists("application_version")) {
             db.executeQuery(getFileContents(migrationFile));
 
@@ -59,8 +66,7 @@ public class Updater {
         }});
     }
 
-    private static void generateData() {
-        DictionaryRepository dictionary = serviceLocator.locate(DictionaryRepository.class);
+    private void generateData() {
         if (!dictionary.isEmpty()) {
             System.out.println("Tables already contain generated data. Skipping");
 
@@ -68,7 +74,6 @@ public class Updater {
         }
         new ImportDictionary(dictionary).run();
 
-        QuestionRepository questionRepository = serviceLocator.locate(QuestionRepository.class);
         new GenerateQuestion(dictionary, questionRepository).run();
     }
 

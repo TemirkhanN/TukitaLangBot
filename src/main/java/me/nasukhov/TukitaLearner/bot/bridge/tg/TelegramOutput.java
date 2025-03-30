@@ -1,6 +1,5 @@
 package me.nasukhov.TukitaLearner.bot.bridge.tg;
 
-import me.nasukhov.TukitaLearner.bot.bridge.IOResolver;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -138,13 +137,14 @@ public final class TelegramOutput implements Output {
             return false;
         }
 
+        // TODO SRP violation event dispatch event so handler deactivates it
         int errorCode = ((TelegramApiRequestException) error).getErrorCode();
         // Both cases mean that either bot no longer has access to chat
         if (errorCode != 400 && errorCode != 403) {
             return false;
         }
 
-        IOResolver.telegramChannel(chatId, true).deactivate();
+        // IOResolver.telegramChannel(chatId, true).deactivate();
 
         return true;
     }

@@ -3,6 +3,7 @@ package me.nasukhov.TukitaLearner.bot.task;
 import me.nasukhov.TukitaLearner.bot.io.Channel;
 import me.nasukhov.TukitaLearner.db.Collection;
 import me.nasukhov.TukitaLearner.db.Connection;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class TaskManager {
     private boolean isRunning = false;
 
@@ -23,9 +25,10 @@ public class TaskManager {
 
     private final ScheduledExecutorService scheduler;
 
-    public TaskManager(Connection db) {
+    public TaskManager(Connection db, List<TaskRunner> taskRunners) {
         this.db = db;
         this.scheduler = Executors.newScheduledThreadPool(3);
+        taskRunners.forEach(this::registerRunner);
     }
 
     public void registerRunner(TaskRunner runner) {

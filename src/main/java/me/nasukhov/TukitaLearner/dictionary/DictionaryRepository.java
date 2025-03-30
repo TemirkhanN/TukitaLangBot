@@ -2,12 +2,14 @@ package me.nasukhov.TukitaLearner.dictionary;
 
 import me.nasukhov.TukitaLearner.db.Collection;
 import me.nasukhov.TukitaLearner.db.Connection;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class DictionaryRepository {
     private final Connection db;
 

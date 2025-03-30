@@ -40,21 +40,3 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-
-tasks.jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest {
-        attributes["Main-Class"] = "me.nasukhov.TukitaLearner.LearnerApp"
-    }
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-}
-
-tasks.register<JavaExec>("run") {
-    mainClass.set("me.nasukhov.TukitaLearner.LearnerApp")
-    classpath = sourceSets.main.get().runtimeClasspath
-}
-
-tasks.register<JavaExec>("update") {
-    mainClass.set("me.nasukhov.TukitaLearner.Updater")
-    classpath = sourceSets.main.get().runtimeClasspath
-}

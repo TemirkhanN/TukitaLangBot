@@ -1,17 +1,14 @@
 package me.nasukhov.bot.TukitaLearner.command;
 
-import me.nasukhov.TukitaLearner.DI.ServiceLocator;
 import me.nasukhov.TukitaLearner.bot.command.AnswerQuestion;
 import me.nasukhov.TukitaLearner.bot.command.AskQuestion;
 import me.nasukhov.TukitaLearner.bot.io.Channel;
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.bot.io.User;
-import me.nasukhov.TukitaLearner.db.Connection;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
 import me.nasukhov.TukitaLearner.study.Question;
-import me.nasukhov.TukitaLearner.study.QuestionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,12 +1,20 @@
 package me.nasukhov.TukitaLearner.db;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.sql.*;
 import java.util.Map;
 
+@Component
 public class Connection {
     private final java.sql.Connection db;
 
-    public Connection(String url, String username, String password) {
+    public Connection(
+            @Value("${DATABASE_URL}") String url,
+            @Value("${DATABASE_USERNAME}") String username,
+            @Value("${DATABASE_PASSWORD}") String password
+    ) {
         try {
             db = DriverManager.getConnection(url, username, password);
         } catch (Exception e) {

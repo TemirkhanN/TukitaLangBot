@@ -6,10 +6,12 @@ import me.nasukhov.TukitaLearner.study.Group;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
 import me.nasukhov.TukitaLearner.dictionary.DictionaryRepository;
 import me.nasukhov.TukitaLearner.dictionary.Word;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class LearnWord implements Handler {
     private static final String NO_MORE_UNLEARNED_WORDS = "Вы изучили все слова из нашего словаря - больше новых слов нет.";
 

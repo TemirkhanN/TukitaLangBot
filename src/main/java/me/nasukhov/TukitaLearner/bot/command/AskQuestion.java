@@ -5,11 +5,13 @@ import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Component("askQuestionCommand")
 public class AskQuestion implements Handler {
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
     private final ProgressRepository progressRepository;

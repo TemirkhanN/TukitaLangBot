@@ -2,17 +2,26 @@ package me.nasukhov.TukitaLearner.bot.command;
 
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
+import me.nasukhov.TukitaLearner.db.Connection;
 import me.nasukhov.TukitaLearner.study.Group;
 import me.nasukhov.TukitaLearner.study.Preferences;
+import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class Configure implements Handler {
     private static final Pattern INTERVAL_PATTERN = Pattern.compile("^cfg .+ (\\d+)([mhd])$");
     private static final int MIN_INTERVAL = 60;
     private static final int MAX_INTERVAL = 7 * 24 * 60;
+
+    private final Connection db;
+
+    public Configure(Connection db) {
+        this.db = db;
+    }
 
     @Override
     public boolean supports(Input input) {
@@ -40,7 +49,7 @@ public class Configure implements Handler {
         }
 
         Group group = new Group(input.channel().id);
-        Preferences preferences = group.preferences();
+        Preferences preferences = group.preferences(db);
 
         if (input.input().equals("cfg asker enable")) {
             preferences.enableAutoAsker(true);

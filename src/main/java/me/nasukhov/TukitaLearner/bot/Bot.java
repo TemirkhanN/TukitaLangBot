@@ -6,19 +6,22 @@ import me.nasukhov.TukitaLearner.bot.io.ChannelRepository;
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.bot.task.TaskManager;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class Bot {
     private final List<Handler> handlers = new ArrayList<>();
     private final ChannelRepository channelRepository;
-
     private final TaskManager taskManager;
 
-    public Bot(ChannelRepository channelRepository, TaskManager taskManager) {
+    public Bot(ChannelRepository channelRepository, TaskManager taskManager, List<Handler> handlers) {
         this.channelRepository = channelRepository;
         this.taskManager = taskManager;
+
+        this.handlers.addAll(handlers);
     }
 
     public void addHandler(Handler handler) {
@@ -36,8 +39,9 @@ public class Bot {
     // TODO remove output and use output resolver
     public void handle(Input command, Output output) {
         Channel channel = command.channel();
-        if (channel.isRegistered()) {
-            if (!channel.isActive()) {
+        boolean isKnownChannel = channelRepository.findById(channel.id).isPresent();
+        if (isKnownChannel) {
+            if (!channelRepository.isActive(channel)) {
                 return;
             }
         } else {

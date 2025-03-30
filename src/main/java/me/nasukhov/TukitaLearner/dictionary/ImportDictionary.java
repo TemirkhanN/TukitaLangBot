@@ -1,6 +1,8 @@
 package me.nasukhov.TukitaLearner.dictionary;
 
 import com.opencsv.CSVReader;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +10,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@Lazy
 public class ImportDictionary {
     private final DictionaryRepository storage;
 

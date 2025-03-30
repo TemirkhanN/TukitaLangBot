@@ -1,6 +1,5 @@
 package me.nasukhov.TukitaLearner;
 
-import me.nasukhov.TukitaLearner.DI.ServiceLocator;
 import me.nasukhov.TukitaLearner.bot.bridge.tg.Telegram;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @SpringBootApplication
 @Configuration
 public class LearnerApp {
-    private static final ServiceLocator serviceLocator = new ServiceLocator();
-
     public static void main(String[] args) {
         var app = new SpringApplication(LearnerApp.class);
         app.setWebApplicationType(WebApplicationType.NONE);
@@ -21,12 +18,15 @@ public class LearnerApp {
     }
 
     @Bean
-    public static ApplicationRunner createRunner() {
+    public static ApplicationRunner createRunner(Updater updater, Telegram telegram) {
         return (args) -> {
             try {
-                serviceLocator.locate(Telegram.class).run();
+                updater.execute();
+
+                telegram.run();
             } catch (Throwable e) {
-                System.out.println(e.getMessage());
+                // TODO
+                e.printStackTrace();
                 System.exit(1);
             }
         };

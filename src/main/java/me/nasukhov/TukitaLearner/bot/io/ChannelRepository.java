@@ -2,12 +2,14 @@ package me.nasukhov.TukitaLearner.bot.io;
 
 import me.nasukhov.TukitaLearner.db.Collection;
 import me.nasukhov.TukitaLearner.db.Connection;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class ChannelRepository {
     private final Connection db;
 

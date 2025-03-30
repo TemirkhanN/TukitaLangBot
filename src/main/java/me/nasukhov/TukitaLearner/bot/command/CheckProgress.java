@@ -6,7 +6,9 @@ import me.nasukhov.TukitaLearner.study.Group;
 import me.nasukhov.TukitaLearner.study.GroupStats;
 import me.nasukhov.TukitaLearner.study.ProgressRepository;
 import me.nasukhov.TukitaLearner.study.StudentStats;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CheckProgress implements Handler {
     private final ProgressRepository progressRepository;
 
