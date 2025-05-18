@@ -1,13 +1,10 @@
 package me.nasukhov.TukitaLearner.bot.task;
 
 import me.nasukhov.TukitaLearner.bot.io.Channel;
-import me.nasukhov.TukitaLearner.db.Collection;
-import me.nasukhov.TukitaLearner.db.Connection;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +18,12 @@ public class TaskManager {
 
     private final Map<String, TaskRunner> runners = new ConcurrentHashMap<>();
 
-    private final Connection db;
+    private final TaskRepository taskRepository;
 
     private final ScheduledExecutorService scheduler;
 
-    public TaskManager(Connection db, List<TaskRunner> taskRunners) {
-        this.db = db;
+    public TaskManager(TaskRepository taskRepository, List<TaskRunner> taskRunners) {
+        this.taskRepository = taskRepository;
         this.scheduler = Executors.newScheduledThreadPool(3);
         taskRunners.forEach(this::registerRunner);
     }
@@ -39,7 +36,6 @@ public class TaskManager {
         if (isRunning) {
             throw new RuntimeException("Tasks are already running");
         }
-
         isRunning = true;
 
         if (runners.isEmpty()) {
@@ -47,15 +43,13 @@ public class TaskManager {
         }
 
         Runnable r = () -> {
-            for (Task task : getCurrentTasks()) {
+            for (Task task : taskRepository.getScheduledTasks(PageRequest.of(0, 100))) {
                 // Just push tasks into the pool and allow them to execute
+                // TODO implement lock mechanism to avoid races. if tasks take long to handle, there will be duplicate handles
                 scheduler.execute(() -> {
                     getTaskRunner(task).runTask(task);
-                    db.executeQuery("UPDATE tasks SET last_executed_at=?, next_execution_at=? WHERE id=?", new HashMap<>(){{
-                        put(1, new Timestamp(System.currentTimeMillis()));
-                        put(2, new Timestamp(System.currentTimeMillis() + (task.frequency() * 1000L)));
-                        put(3, task.id());
-                    }});
+                    task.setLastExecutedAt(LocalDateTime.now());
+                    taskRepository.save(task);
                 });
             }
         };
@@ -64,45 +58,22 @@ public class TaskManager {
     }
 
     public void registerTasks(Channel channel) {
-        db.executeQuery("""
-                INSERT INTO tasks(channel_id, task_name, frequency, last_executed_at, next_execution_at) VALUES
-                    (?, 'share_fact', 86400, NOW(), NOW()),
-                    (?, 'ask_question', 10800, NOW(), NOW())
-                """,
-                new HashMap<>(){{
-                    put(1, channel.id);
-                    put(2, channel.id);
-                }}
+        var everyHour = 60;
+        String TASK_ASK_QUESTION = "ask_question";
+        String TASK_SHARE_FACT = "share_fact";
+        taskRepository.saveAll(
+                List.of(
+                        new Task(TASK_SHARE_FACT, everyHour * 24, channel),
+                        new Task(TASK_ASK_QUESTION, everyHour * 6, channel)
+                )
         );
     }
 
-    private List<Task> getCurrentTasks() {
-        Collection result = db.fetchByQuery("SELECT t.*, c.is_public" +
-                " FROM tasks t " +
-                " INNER JOIN channels c ON c.id=t.channel_id AND c.is_active=true" +
-                " WHERE t.next_execution_at<=NOW() AND t.is_active=true");
-
-        List<Task> plan = new ArrayList<>();
-        while (result.next()) {
-            int id = result.getCurrentEntryProp("id");
-            String taskName = result.getCurrentEntryProp("task_name");
-            String channelId = result.getCurrentEntryProp("channel_id");
-            boolean isPublic = result.getCurrentEntryProp("is_public");
-            int frequency = result.getCurrentEntryProp("frequency");
-            Timestamp lastExecutedAt = result.getCurrentEntryProp("last_executed_at");
-
-            plan.add(new Task(id, taskName, new Channel(channelId, isPublic), frequency, lastExecutedAt.getTime()));
-        }
-        result.free();
-
-        return plan;
-    }
-
     private TaskRunner getTaskRunner(Task task) {
-        if (!runners.containsKey(task.name())) {
+        if (!runners.containsKey(task.getName())) {
             throw new RuntimeException("There is no runner registered for task");
         }
 
-        return runners.get(task.name());
+        return runners.get(task.getName());
     }
 }

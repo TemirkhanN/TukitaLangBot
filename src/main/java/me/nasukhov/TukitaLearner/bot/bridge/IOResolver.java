@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class IOResolver {
     public final static String TG_PREFIX = "tg_";
 
+    // TODO injecting entire service locator is rather messy
     private final ApplicationContext serviceLocator;
 
     public IOResolver(ApplicationContext applicationContext) {
@@ -25,10 +26,6 @@ public class IOResolver {
         }
 
         throw new RuntimeException("Channel interaction is not supported. Probably some mistake in the code.");
-    }
-
-    public static Channel telegramChannel(Long chatId, boolean isPublic) {
-        return new Channel(TG_PREFIX + chatId, isPublic);
     }
 
     private static boolean isTelegramChannel(Channel channel) {

@@ -27,14 +27,16 @@ repositories {
 
 dependencies {
     implementation("com.opencsv:opencsv:3.7")
-    implementation("org.postgresql:postgresql:42.2.23")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation("org.telegram:telegrambots:6.9.7.1")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.h2database:h2:2.3.232")
 }
 
 tasks.withType<Test> {

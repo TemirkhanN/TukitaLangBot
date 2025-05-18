@@ -8,15 +8,15 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface QuestionRepository extends JpaRepository<Question, Long> {
+public interface FactRepository extends JpaRepository<Fact, Long> {
     @Query("""
-        SELECT q FROM Question q
+        SELECT f FROM Fact f
         WHERE NOT EXISTS (
-            SELECT 1 FROM GroupQuestion gq
-            WHERE gq.question = q AND gq.channelId = :channelId
+            SELECT 1 FROM LearnedResource lr
+            WHERE lr.groupId = :groupId AND lr.resourceId = f.id AND lr.resourceType = 'FACT'
         )
         ORDER BY function('RANDOM')
         LIMIT 1
         """)
-    Optional<Question> findUnseenRandom(@Param("channelId") String channelId);
+    Optional<Fact> findUnlearnedFact(@Param("groupId") String groupId);
 }

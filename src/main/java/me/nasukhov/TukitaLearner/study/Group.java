@@ -1,9 +1,9 @@
 package me.nasukhov.TukitaLearner.study;
 
-import me.nasukhov.TukitaLearner.db.Connection;
+import jakarta.persistence.EntityManager;
 
 public record Group(String id) {
-    public Preferences preferences(Connection db) {
+    public Preferences preferences(EntityManager db) {
         return new Preferences(this, db);
     }
 }

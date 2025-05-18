@@ -18,11 +18,19 @@ public class Telegram extends TelegramLongPollingBot {
     private final Bot bot;
     private final ChannelRepository channelRepository;
 
-    public Telegram(@Value("${TG_BOT_TOKEN}") String token, Bot bot, ChannelRepository channelRepository) {
+    private final IOResolver io;
+
+    public Telegram(
+            @Value("${TG_BOT_TOKEN}") String token,
+            Bot bot,
+            ChannelRepository channelRepository,
+            IOResolver ioResolver
+    ) {
         super(token);
 
         this.bot = bot;
         this.channelRepository = channelRepository;
+        this.io = ioResolver;
     }
 
     public void run() {
@@ -38,35 +46,21 @@ public class Telegram extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         String input;
-        Long chatId;
+        String channelId;
         Long userId;
         String name;
         boolean isPublic;
+
         // TODO provide some wrapper around Update to make encapsulation adequate. Current one is very broad and messy
         if (update.hasCallbackQuery()) {
             input = update.getCallbackQuery().getData();
-            chatId = update.getCallbackQuery().getMessage().getChatId();
+            channelId = getChannelId(update.getCallbackQuery().getMessage().getChatId());
             userId = update.getCallbackQuery().getFrom().getId();
             name = update.getCallbackQuery().getFrom().getFirstName();
             isPublic = !update.getCallbackQuery().getMessage().isUserMessage();
         } else {
             if (!update.hasMessage()) {
-                if (isRemovedFromChannel(update)) {
-                    Channel channel = IOResolver.telegramChannel(
-                            update.getMyChatMember().getChat().getId(),
-                            !update.getMyChatMember().getChat().isUserChat()
-                    );
-
-                    channelRepository.activateChannel(channel, false);
-                } else if (isAddedToChannel(update)) {
-                    Channel channel = IOResolver.telegramChannel(
-                            update.getMyChatMember().getChat().getId(),
-                            !update.getMyChatMember().getChat().isUserChat()
-                    );
-
-
-                    channelRepository.activateChannel(channel, true);
-                }
+                handleSystemEvent(update);
 
                 return;
             }
@@ -76,15 +70,27 @@ public class Telegram extends TelegramLongPollingBot {
                 return;
             }
             input = msg.getText();
-            chatId = msg.getChatId();
+            channelId = getChannelId(msg.getChatId());
             userId = msg.getFrom().getId();
             name = msg.getFrom().getFirstName();
             isPublic = !msg.isUserMessage();
         }
 
+        var channel = channelRepository.findById(channelId).orElseGet(() -> {
+            var newChannel = new Channel(channelId, isPublic);
+            channelRepository.save(newChannel);
+            // TODO taskManager.registerTasks(newChannel);
+
+            return newChannel;
+        });
+
+        if (!channel.isActive()) {
+            return;
+        }
+
         bot.handle(
-            new Input(input, IOResolver.telegramChannel(chatId, isPublic), getSender(userId, name)),
-            new TelegramOutput(chatId, this)
+            new Input(input, channel, getSender(userId, name)),
+            io.resolveFor(channel)
         );
     }
 
@@ -114,5 +120,44 @@ public class Telegram extends TelegramLongPollingBot {
         }
 
         return membershipUpdate.getNewChatMember().getStatus().equals("member");
+    }
+
+    private String getChannelId(Long chatId) {
+        return IOResolver.TG_PREFIX + chatId;
+    }
+
+    private void deactivateChannel(Long chatId) {
+        var result = channelRepository.findById(getChannelId(chatId));
+        if (result.isEmpty()) {
+            return;
+        }
+
+        var channel = result.get();
+        channel.deactivate();
+        channelRepository.save(channel);
+    }
+
+    private void activateChannel(Long chatId, boolean isPublic) {
+        var channelId = getChannelId(chatId);
+        var result = channelRepository.findById(channelId);
+
+        var channel = result.orElseGet(() -> new Channel(channelId, isPublic));
+        channel.deactivate();
+        channelRepository.save(channel);
+    }
+
+    private void handleSystemEvent(Update update) {
+        if (isRemovedFromChannel(update)) {
+            deactivateChannel(update.getMyChatMember().getChat().getId());
+
+            return;
+        }
+
+        if (isAddedToChannel(update)) {
+            activateChannel(
+                update.getMyChatMember().getChat().getId(),
+                !update.getMyChatMember().getChat().isUserChat()
+            );
+        }
     }
 }

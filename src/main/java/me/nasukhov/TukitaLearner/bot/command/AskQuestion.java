@@ -1,10 +1,9 @@
 package me.nasukhov.TukitaLearner.bot.command;
 
-import me.nasukhov.TukitaLearner.bot.io.Channel;
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
-import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import me.nasukhov.TukitaLearner.study.ProgressTracker;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -14,10 +13,10 @@ import java.util.Optional;
 @Component("askQuestionCommand")
 public class AskQuestion implements Handler {
     private static final String NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже";
-    private final ProgressRepository progressRepository;
+    private final ProgressTracker progressTracker;
 
-    public AskQuestion(ProgressRepository progressRepository) {
-        this.progressRepository = progressRepository;
+    public AskQuestion(ProgressTracker progressTracker) {
+        this.progressTracker = progressTracker;
     }
 
     @Override
@@ -27,11 +26,8 @@ public class AskQuestion implements Handler {
 
     @Override
     public void handle(Input input, Output output) {
-        ask(input.channel(), output);
-    }
-
-    private void ask(Channel channel, Output output) {
-        Optional<GroupQuestion> result = progressRepository.createRandomForChannel(channel.id);
+        var channel = input.channel();
+        Optional<GroupQuestion> result = progressTracker.createRandomForChannel(channel);
 
         if (result.isEmpty()) {
             // TODO share summary. reset progress

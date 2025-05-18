@@ -1,43 +1,42 @@
 package me.nasukhov.TukitaLearner.study;
 
-import me.nasukhov.TukitaLearner.db.Connection;
-
-import java.util.HashMap;
+import jakarta.persistence.EntityManager;
 
 public class Preferences {
     private final Group group;
-    private final Connection connection;
+    private final EntityManager connection;
 
-    Preferences(Group group, Connection connection) {
+    Preferences(Group group, EntityManager connection) {
         this.connection = connection;
         this.group = group;
     }
 
     public void enableAutoAsker(boolean status) {
-        connection.executeQuery("UPDATE tasks SET is_active=? WHERE channel_id=? AND task_name='ask_question'", new HashMap<>() {{
-            put(1, status);
-            put(2, group.id());
-        }});
+        connection
+                .createNativeQuery("UPDATE tasks SET is_active = :status WHERE channel_id = :channelId AND task_name='ask_question'")
+                .setParameter("channelId", group.id())
+                .setParameter("status", status)
+                .executeUpdate();
     }
 
     public void autoAskEveryXMinutes(int minutes) {
-        connection.executeQuery("UPDATE tasks SET frequency=? WHERE channel_id=? AND task_name='ask_question'", new HashMap<>() {{
-            put(1, minutes);
-            put(2, group.id());
-        }});
+        connection
+                .createNativeQuery("UPDATE tasks SET frequency = :frequency WHERE channel_id = :channelId AND task_name='ask_question'")
+                .setParameter("channelId", group.id())
+                .setParameter("frequency", minutes)
+        ;
     }
 
     public void enableFactSharing(boolean status) {
-        connection.executeQuery("UPDATE tasks SET is_active=? WHERE channel_id=? AND task_name='share_fact'", new HashMap<>() {{
-            put(1, status);
-            put(2, group.id());
-        }});
+        connection
+                .createNativeQuery("UPDATE tasks SET is_active = :isActive WHERE channel_id = :channelId AND task_name='share_fact'")
+                .setParameter("isActive", status)
+                .setParameter("channelId", group.id());
     }
 
     public void shareFactEveryXMinutes(int minutes) {
-        connection.executeQuery("UPDATE tasks SET frequency=? WHERE channel_id=? AND task_name='share_fact'", new HashMap<>() {{
-            put(1, minutes);
-            put(2, group.id());
-        }});
+        connection.createNativeQuery("UPDATE tasks SET frequency = :frequency WHERE channel_id=? AND task_name='share_fact'")
+                .setParameter("frequency", minutes)
+                .setParameter("channelId", group.id());
     }
 }

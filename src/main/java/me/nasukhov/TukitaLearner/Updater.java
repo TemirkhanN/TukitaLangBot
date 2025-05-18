@@ -1,80 +1,60 @@
 package me.nasukhov.TukitaLearner;
 
-import me.nasukhov.TukitaLearner.db.Collection;
-import me.nasukhov.TukitaLearner.db.Connection;
+import jakarta.persistence.EntityManager;
 import me.nasukhov.TukitaLearner.dictionary.DictionaryRepository;
 import me.nasukhov.TukitaLearner.dictionary.ImportDictionary;
 import me.nasukhov.TukitaLearner.study.GenerateQuestion;
 import me.nasukhov.TukitaLearner.study.QuestionRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.stream.Stream;
 
+
 @Component
-public class Updater {
-    private static final String MIGRATIONS_DIRECTORY = "src/main/resources/migrations";
+class Migrator {
 
-    private final Connection db;
-    private final DictionaryRepository dictionary;
-    private final QuestionRepository questionRepository;
+    private final EntityManager db;
 
-    public Updater(
-            Connection db,
-            DictionaryRepository dictionary,
-            QuestionRepository questionRepository
-    ) {
+
+    public Migrator(EntityManager db) {
         this.db = db;
-        this.dictionary = dictionary;
-        this.questionRepository = questionRepository;
     }
 
-    public void execute() throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(MIGRATIONS_DIRECTORY))) {
-            paths
-                    .filter(Files::isRegularFile)
-                    .forEach(this::runMigration);
-        }
-        generateData();
-    }
-
-    private void runMigration(Path migrationFile) {
-        if (!db.tableExists("application_version")) {
-            db.executeQuery(getFileContents(migrationFile));
+    @Transactional
+    public void runMigration(Path migrationFile) {
+        if (!tableExists("application_version")) {
+            try {
+                db.createNativeQuery(getFileContents(migrationFile)).executeUpdate();
+            } catch (Throwable e) {
+                throw new RuntimeException("Migration " + migrationFile.toString() + " failed", e);
+            }
 
             return;
         }
 
         String migrationVersion = migrationFile.getFileName().toString().replaceFirst("[.][^.]+$", "");
 
-        Collection result = db.fetchByQuery("SELECT version FROM application_version LIMIT 1");
-        result.next();
-        String currentVersion = result.getCurrentEntryProp("version");
-        result.free();
-
+        var currentVersion = db.createNativeQuery("SELECT version FROM application_version LIMIT 1").getSingleResult().toString();
         if (migrationVersion.compareTo(currentVersion) <= 0) {
             return;
         }
 
-        db.executeQuery(getFileContents(migrationFile));
-        db.executeQuery("UPDATE application_version SET version=?", new HashMap<>() {{
-            put(1, migrationVersion);
-        }});
+        db.createNativeQuery(getFileContents(migrationFile)).executeUpdate();
+        db.createNativeQuery("UPDATE application_version SET version = :newVersion")
+                .setParameter("newVersion", migrationVersion)
+                .executeUpdate();
     }
 
-    private void generateData() {
-        if (!dictionary.isEmpty()) {
-            System.out.println("Tables already contain generated data. Skipping");
+    private boolean tableExists(String tableName) {
+        var result = db.createNativeQuery(String.format("SELECT EXISTS (SELECT * FROM information_schema.tables WHERE table_name = '%s')", tableName))
+                .getSingleResult();
 
-            return;
-        }
-        new ImportDictionary(dictionary).run();
-
-        new GenerateQuestion(dictionary, questionRepository).run();
+        return result.equals(true);
     }
 
     private static String getFileContents(Path file) {
@@ -83,5 +63,45 @@ public class Updater {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+}
+
+@Component
+public class Updater {
+    private static final String MIGRATIONS_DIRECTORY = "src/main/resources/migrations";
+
+    private final DictionaryRepository dictionary;
+    private final QuestionRepository questionRepository;
+
+    private final Migrator migrator;
+
+    public Updater(
+            Migrator migrator,
+            DictionaryRepository dictionary,
+            QuestionRepository questionRepository
+    ) {
+        this.migrator = migrator;
+        this.dictionary = dictionary;
+        this.questionRepository = questionRepository;
+    }
+
+    public void execute() throws IOException {
+        try (Stream<Path> paths = Files.walk(Paths.get(MIGRATIONS_DIRECTORY))) {
+            paths
+                    .filter(Files::isRegularFile)
+                    .forEach(migrator::runMigration);
+        }
+        generateData();
+    }
+
+    private void generateData() {
+        if (dictionary.count() != 0) {
+            System.out.println("Tables already contain generated data. Skipping");
+
+            return;
+        }
+        new ImportDictionary(dictionary).run();
+
+        new GenerateQuestion(dictionary, questionRepository).run();
     }
 }

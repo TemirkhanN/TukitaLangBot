@@ -4,22 +4,22 @@ import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.Group;
 import me.nasukhov.TukitaLearner.study.GroupStats;
-import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import me.nasukhov.TukitaLearner.study.ProgressTracker;
 import me.nasukhov.TukitaLearner.study.StudentStats;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CheckProgress implements Handler {
-    private final ProgressRepository progressRepository;
+    private final ProgressTracker progressTracker;
 
-    public CheckProgress(ProgressRepository progressRepository) {
-        this.progressRepository = progressRepository;
+    public CheckProgress(ProgressTracker progressTracker) {
+        this.progressTracker = progressTracker;
     }
 
     @Override
     public void handle(Input input, Output output) {
         Group group = new Group(input.channel().id);
-        GroupStats cs = this.progressRepository.getGroupStats(group);
+        GroupStats cs = progressTracker.getGroupStats(group);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Name | ✅ | ❌\n");

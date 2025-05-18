@@ -41,7 +41,7 @@ public class ImportDictionary {
                 words.add(word);
             }
 
-            storage.add(words);
+            storage.saveAllAndFlush(words);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

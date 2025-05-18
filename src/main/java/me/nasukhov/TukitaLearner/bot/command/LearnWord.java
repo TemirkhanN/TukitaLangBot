@@ -3,24 +3,22 @@ package me.nasukhov.TukitaLearner.bot.command;
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.Group;
-import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import me.nasukhov.TukitaLearner.study.ProgressTracker;
 import me.nasukhov.TukitaLearner.dictionary.DictionaryRepository;
 import me.nasukhov.TukitaLearner.dictionary.Word;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class LearnWord implements Handler {
     private static final String NO_MORE_UNLEARNED_WORDS = "Вы изучили все слова из нашего словаря - больше новых слов нет.";
 
     private final DictionaryRepository dictionary;
-    private final ProgressRepository progressRepository;
+    private final ProgressTracker progressTracker;
 
-    public LearnWord(DictionaryRepository dictionaryRepository, ProgressRepository progressRepository) {
+    public LearnWord(DictionaryRepository dictionaryRepository, ProgressTracker progressTracker) {
         this.dictionary = dictionaryRepository;
-        this.progressRepository = progressRepository;
+        this.progressTracker = progressTracker;
     }
 
     @Override
@@ -35,11 +33,11 @@ public class LearnWord implements Handler {
         }
 
         Group group = new Group(input.channel().id);
-        int lastLearnedWord = progressRepository.getLastLearnedWordId(group);
-        List<Integer> newWordsIds = new ArrayList<>();
+        Long lastLearnedWord = progressTracker.getLastLearnedWordId(group);
 
         StringBuilder sb = new StringBuilder();
-        for (Word word : dictionary.getChunk(3, lastLearnedWord)) {
+        var newWords = dictionary.findWords(lastLearnedWord, PageRequest.of(0, 3));
+        for (Word word : newWords) {
             sb.append(word.word);
             sb.append(" - ");
             sb.append(word.translation);
@@ -47,7 +45,6 @@ public class LearnWord implements Handler {
             // TODO show description only for ambiguous words or words with high complexity(indicate in db?)
             //sb.append(word.description);
             sb.append("\n\n");
-            newWordsIds.add(word.id);
         }
 
         if (sb.isEmpty()) {
@@ -56,7 +53,7 @@ public class LearnWord implements Handler {
             return;
         }
 
-        progressRepository.setLastLearnedWords(group, newWordsIds);
+        progressTracker.setLastLearnedWords(group, newWords);
 
         // Removing trailing newlines
         sb.delete(sb.length() - 2, sb.length());

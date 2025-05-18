@@ -2,6 +2,7 @@ package me.nasukhov.TukitaLearner.study;
 
 import me.nasukhov.TukitaLearner.dictionary.DictionaryRepository;
 import me.nasukhov.TukitaLearner.dictionary.Word;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 
@@ -26,7 +27,7 @@ public class GenerateQuestion {
     }
 
     public void run() {
-        List<Word> words = dictionary.getChunk(MAX_WORDS, 0);
+        List<Word> words = dictionary.findWords(0L, PageRequest.of(0, MAX_WORDS));
 
         generateWithWords(words);
     }
@@ -45,16 +46,20 @@ public class GenerateQuestion {
             Collections.shuffle(fromNativeVariants);
             Collections.shuffle(toNativeVariants);
 
-            questionRepository.create(
-                    String.format(QUESTION_TRANSLATE_FROM_NATIVE, word.word),
-                    word.translation,
-                    fromNativeVariants
+            questionRepository.save(
+                    new Question(
+                            String.format(QUESTION_TRANSLATE_FROM_NATIVE, word.word),
+                            word.translation,
+                            fromNativeVariants
+                    )
             );
 
-            questionRepository.create(
-                    String.format(QUESTION_TRANSLATE_TO_NATIVE, word.translation),
-                    word.word,
-                    toNativeVariants
+            questionRepository.save(
+                    new Question(
+                            String.format(QUESTION_TRANSLATE_TO_NATIVE, word.translation),
+                            word.word,
+                            toNativeVariants
+                    )
             );
         }
     }

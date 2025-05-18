@@ -4,7 +4,7 @@ import me.nasukhov.TukitaLearner.bot.bridge.IOResolver;
 import me.nasukhov.TukitaLearner.bot.io.Channel;
 import me.nasukhov.TukitaLearner.bot.io.Output;
 import me.nasukhov.TukitaLearner.study.GroupQuestion;
-import me.nasukhov.TukitaLearner.study.ProgressRepository;
+import me.nasukhov.TukitaLearner.study.ProgressTracker;
 import me.nasukhov.TukitaLearner.study.Time;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +14,11 @@ import java.util.Optional;
 
 @Component("askQuestionTask")
 public class AskQuestion implements TaskRunner {
-    private final ProgressRepository progressRepository;
+    private final ProgressTracker progressTracker;
     private final IOResolver ioResolver;
 
-    public AskQuestion(ProgressRepository progressRepository, IOResolver ioResolver) {
-        this.progressRepository = progressRepository;
+    public AskQuestion(ProgressTracker progressTracker, IOResolver ioResolver) {
+        this.progressTracker = progressTracker;
         this.ioResolver = ioResolver;
     }
 
@@ -29,7 +29,7 @@ public class AskQuestion implements TaskRunner {
 
     @Override
     public void runTask(Task task) {
-        if (!subscribesFor().equals(task.name())) {
+        if (!subscribesFor().equals(task.getName())) {
             throw new RuntimeException("Runner does not know how to execute the given task");
         }
 
@@ -38,11 +38,11 @@ public class AskQuestion implements TaskRunner {
             return;
         }
 
-        ask(task.channel());
+        ask(task.getChannel());
     }
 
     public void ask(Channel channel) {
-        Optional<GroupQuestion> result = progressRepository.createRandomForChannel(channel.id);
+        Optional<GroupQuestion> result = progressTracker.createRandomForChannel(channel);
         if (result.isEmpty()) {
             return;
         }

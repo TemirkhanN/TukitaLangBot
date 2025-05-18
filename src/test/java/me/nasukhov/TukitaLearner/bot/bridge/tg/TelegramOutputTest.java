@@ -1,7 +1,5 @@
-package me.nasukhov.bot.TukitaLearner.bridge.tg;
+package me.nasukhov.TukitaLearner.bot.bridge.tg;
 
-import me.nasukhov.TukitaLearner.bot.bridge.tg.Telegram;
-import me.nasukhov.TukitaLearner.bot.bridge.tg.TelegramOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -26,22 +24,10 @@ public class TelegramOutputTest {
     @Test
     public void testTextRendering() throws TelegramApiException {
         ArgumentCaptor<SendMessage> arg = ArgumentCaptor.forClass(SendMessage.class);
-        /*
 
-        ChatMemberMember member = new ChatMemberMember();
-        User u = new User();
-        u.setFirstName("SomeFirstName");
-        member.setUser(u);
-
-        GetChatMember getMemberCommand = new GetChatMember();
-        getMemberCommand.setChatId(chatId);
-        getMemberCommand.setUserId(3123451L);
-        when(api.execute(getMemberCommand)).thenReturn(member);
-        */
         when(api.execute(arg.capture())).thenReturn(new Message());
         output.write("Hey 3123451 here is your code <spoiler>some spoiler text</spoiler>");
 
-        // verify(api).execute(getMemberCommand);
         verify(api).execute(arg.capture());
 
         Assertions.assertEquals(chatId.toString(), arg.getValue().getChatId());

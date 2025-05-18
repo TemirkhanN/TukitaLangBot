@@ -1,26 +1,41 @@
 package me.nasukhov.TukitaLearner.dictionary;
 
-public class Word{
-    public final int id;
-    public final String word;
-    public final String translation;
-    public final String description;
-    public final PartOfSpeech pos;
+import jakarta.persistence.*;
 
-    public Word(String word, String translation, String description, PartOfSpeech pos) {
-        id = 0;
+@Entity
+@Table(name = "dictionary")
+public class Word{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
+    @Column(nullable = false)
+    public String word;
+
+    @Column(nullable = false)
+    public String translation;
+
+    @Column(nullable = false)
+    public String description;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    public PartOfSpeech partOfSpeech;
+
+    protected Word() {}
+
+    public Word(String word, String translation, String description) {
         this.word = word;
         this.translation = translation;
         this.description = description;
-        this.pos = pos;
+        this.partOfSpeech = PartOfSpeech.NOUN;
     }
 
-    public Word(int id, String word, String translation, String description, PartOfSpeech pos) {
-        this.id = id;
+    public Word(String word, String translation, String description, PartOfSpeech partOfSpeech) {
         this.word = word;
         this.translation = translation;
         this.description = description;
-        this.pos = pos;
+        this.partOfSpeech = partOfSpeech;
     }
 
     public static String canonize(String word) {

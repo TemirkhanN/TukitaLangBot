@@ -114,7 +114,7 @@ public final class TelegramOutput implements Output {
         return result2.toString();
     }
 
-    public Optional<String> getUsername(Long userId) {
+    private Optional<String> getUsername(Long userId) {
         if (userNames.containsKey(userId)) {
             return Optional.of(userNames.get(userId));
         }
@@ -144,7 +144,7 @@ public final class TelegramOutput implements Output {
             return false;
         }
 
-        // IOResolver.telegramChannel(chatId, true).deactivate();
+        // TODO IOResolver.telegramChannel(chatId, true).deactivate();
 
         return true;
     }

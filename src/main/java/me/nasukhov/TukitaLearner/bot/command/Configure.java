@@ -1,8 +1,8 @@
 package me.nasukhov.TukitaLearner.bot.command;
 
+import jakarta.persistence.EntityManager;
 import me.nasukhov.TukitaLearner.bot.io.Input;
 import me.nasukhov.TukitaLearner.bot.io.Output;
-import me.nasukhov.TukitaLearner.db.Connection;
 import me.nasukhov.TukitaLearner.study.Group;
 import me.nasukhov.TukitaLearner.study.Preferences;
 import org.springframework.stereotype.Component;
@@ -17,9 +17,9 @@ public class Configure implements Handler {
     private static final int MIN_INTERVAL = 60;
     private static final int MAX_INTERVAL = 7 * 24 * 60;
 
-    private final Connection db;
+    private final EntityManager db;
 
-    public Configure(Connection db) {
+    public Configure(EntityManager db) {
         this.db = db;
     }
 
