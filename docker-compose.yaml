@@ -2,7 +2,6 @@ services:
   app:
     image: amazoncorretto:21-alpine-jdk
     env_file:
-      - .env
       - .env.local
     environment:
       DATABASE_URL: "jdbc:postgresql://db:5432/${BOT_TKT_DB_NAME}"
