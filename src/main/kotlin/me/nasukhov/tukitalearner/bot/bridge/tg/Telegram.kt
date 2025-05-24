@@ -16,7 +16,7 @@ import java.util.function.Supplier
 
 @Component
 class Telegram(
-    @Value("\${BOT_TKT_TG_TOKEN}") token: String,
+    @Value("\${BOT_TKT_TG_BOT_TOKEN}") token: String,
     private val bot: Bot,
     private val channelRepository: ChannelRepository,
     private val io: IOResolver,
