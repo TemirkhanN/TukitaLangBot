@@ -3,8 +3,8 @@ name: App CI
 on: [push]
 
 jobs:
-  lint:
-    name: Code-style check
+  codecheck:
+    name: Code quality check
     runs-on: ubuntu-latest
 
     steps:
@@ -31,3 +31,6 @@ jobs:
 
       - name: Run Detekt
         run: ./gradlew detekt
+
+      - name: Run tests
+        run: ./gradlew test
