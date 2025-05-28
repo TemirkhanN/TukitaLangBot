@@ -4,7 +4,9 @@ import me.nasukhov.tukitalearner.bot.io.Channel
 import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.Output
 import me.nasukhov.tukitalearner.bot.io.User
+import me.nasukhov.tukitalearner.study.Group
 import me.nasukhov.tukitalearner.study.GroupQuestion
+import me.nasukhov.tukitalearner.study.GroupRepository
 import me.nasukhov.tukitalearner.study.ProgressTracker
 import me.nasukhov.tukitalearner.study.Question
 import me.nasukhov.tukitalearner.study.QuestionRepository
@@ -23,13 +25,18 @@ internal class AnswerQuestionTest(
     @Autowired private val handler: AnswerQuestion,
     @Autowired private val progressTracker: ProgressTracker,
     @Autowired private val questionRepository: QuestionRepository,
+    @Autowired private val groupRepository: GroupRepository,
 ) {
     private lateinit var output: Output
+
+    private lateinit var group: Group
 
     @BeforeEach
     fun setup() {
         output = Mockito.mock(Output::class.java)
 
+        group = Group("SomeGroup123")
+        groupRepository.save(group)
         questionRepository.save(
             Question(
                 "2+5 equals to",
@@ -42,14 +49,15 @@ internal class AnswerQuestionTest(
     @AfterEach
     fun reset() {
         questionRepository.deleteAll()
+        groupRepository.delete(group)
     }
 
     @Test
     fun handleCorrect() {
-        val channel = Channel("SomeChannelId")
+        val channel = Channel(group.id)
         val user = User("SomeId", "SomeName")
 
-        val questionResult = progressTracker.createRandomForChannel(channel)
+        val questionResult = progressTracker.createRandomForGroup(group)
         Assertions.assertTrue(questionResult.isPresent)
         val newGroupQuestion = questionResult.get()
         Assertions.assertFalse(newGroupQuestion.hasAnswerFromUser(user.name))

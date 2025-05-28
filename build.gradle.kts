@@ -9,6 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.liquibase.gradle") version "2.2.0"
 }
 
 group = "me.nasukhov"
@@ -37,6 +38,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.liquibase:liquibase-core:4.24.0")
 
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")

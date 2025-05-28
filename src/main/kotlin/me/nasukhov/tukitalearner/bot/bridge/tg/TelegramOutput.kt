@@ -146,7 +146,7 @@ class TelegramOutput(
             return false
         }
 
-        // TODO IOResolver.telegramChannel(chatId, true).deactivate();
+        // TODO IOResolver.telegramGroup(chatId, true).deactivate();
         return true
     }
 

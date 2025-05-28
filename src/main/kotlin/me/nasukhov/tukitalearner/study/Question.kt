@@ -25,10 +25,6 @@ class Question {
     lateinit var variants: List<String>
         private set
 
-    @Suppress("UnusedPrivateProperty")
-    @OneToMany(mappedBy = "question", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val groupQuestions: List<GroupQuestion>? = null
-
     private constructor()
 
     constructor(

@@ -1,22 +1,26 @@
 package me.nasukhov.tukitalearner.study
 
 import jakarta.persistence.*
-import me.nasukhov.tukitalearner.bot.io.Channel
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import java.util.UUID
 
 @Entity
-@Table(name = "ch_questions")
+@Table(name = "group_questions")
 class GroupQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID) // TODO generate uuid 7
     lateinit var id: UUID
         private set
 
-    @Column(nullable = false, updatable = false)
-    lateinit var channelId: String
-        private set
+    @ManyToOne
+    @JoinColumn(name = "channel_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    lateinit var group: Group
 
     @ManyToOne
+    @JoinColumn(name = "question_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private lateinit var question: Question
 
     val text: String
@@ -28,9 +32,8 @@ class GroupQuestion {
     // ORM necessity
     private constructor()
 
-    // TODO could id generation encapsulation make it better?
-    constructor(channel: Channel, question: Question) {
-        this.channelId = channel.id
+    constructor(group: Group, question: Question) {
+        this.group = group
         this.question = question
     }
 
@@ -59,7 +62,7 @@ class GroupQuestion {
         }
 
         val selectedAnswer = viewVariant(selectedVariant)
-        val answer = Answer(user, channelId, this, selectedAnswer)
+        val answer = Answer(selectedAnswer, user, this)
 
         answers.add(answer)
 

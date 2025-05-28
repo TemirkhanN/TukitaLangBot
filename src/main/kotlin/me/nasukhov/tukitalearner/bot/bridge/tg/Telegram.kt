@@ -3,7 +3,6 @@ package me.nasukhov.tukitalearner.bot.bridge.tg
 import me.nasukhov.tukitalearner.bot.Bot
 import me.nasukhov.tukitalearner.bot.bridge.IOResolver
 import me.nasukhov.tukitalearner.bot.io.Channel
-import me.nasukhov.tukitalearner.bot.io.ChannelRepository
 import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.User
 import org.springframework.beans.factory.annotation.Value
@@ -12,13 +11,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
-import java.util.function.Supplier
 
 @Component
 class Telegram(
-    @Value("\${BOT_TKT_TG_BOT_TOKEN}") token: String,
+    @Value("\${tgbot.token}") token: String,
     private val bot: Bot,
-    private val channelRepository: ChannelRepository,
     private val io: IOResolver,
 ) : TelegramLongPollingBot(token) {
     fun run() {
@@ -29,18 +26,16 @@ class Telegram(
 
     override fun onUpdateReceived(update: Update) {
         val input: String
-        val channelId: String
+        val channel: Channel
         val userId: Long
         val name: String
-        val isPublic: Boolean
 
         // TODO provide some wrapper around Update to make encapsulation adequate. Current one is very broad and messy
         if (update.hasCallbackQuery()) {
             input = update.callbackQuery.data
-            channelId = getChannelId(update.callbackQuery.message.chatId)
+            channel = getChannel(update.callbackQuery.message.chatId)
             userId = update.callbackQuery.from.id
             name = update.callbackQuery.from.firstName
-            isPublic = !update.callbackQuery.message.isUserMessage
         } else {
             if (!update.hasMessage()) {
                 handleSystemEvent(update)
@@ -53,24 +48,9 @@ class Telegram(
                 return
             }
             input = msg.text
-            channelId = getChannelId(msg.chatId)
+            channel = getChannel(msg.chatId)
             userId = msg.from.id
             name = msg.from.firstName
-            isPublic = !msg.isUserMessage
-        }
-
-        val channel =
-            channelRepository.findById(channelId).orElseGet(
-                Supplier {
-                    val newChannel = Channel(channelId, isPublic)
-                    channelRepository.save(newChannel)
-                    // TODO register tasks TaskManager.registerTasks
-                    newChannel
-                },
-            )
-
-        if (!channel.isActive) {
-            return
         }
 
         bot.handle(
@@ -86,7 +66,7 @@ class Telegram(
         name: String,
     ): User = User(userId.toString(), name)
 
-    private fun isRemovedFromChannel(action: Update): Boolean {
+    private fun isRemovedFromGroup(action: Update): Boolean {
         val membershipUpdate = action.myChatMember
         if (membershipUpdate == null) {
             return false
@@ -95,7 +75,7 @@ class Telegram(
         return membershipUpdate.newChatMember.status == "left"
     }
 
-    private fun isAddedToChannel(action: Update): Boolean {
+    private fun isAddedToGroup(action: Update): Boolean {
         val membershipUpdate = action.myChatMember
         if (membershipUpdate == null) {
             return false
@@ -104,43 +84,17 @@ class Telegram(
         return membershipUpdate.newChatMember.status == "member"
     }
 
-    private fun getChannelId(chatId: Long): String = IOResolver.TG_PREFIX + chatId
-
-    private fun deactivateChannel(chatId: Long) {
-        val result = channelRepository.findById(getChannelId(chatId))
-        if (result.isEmpty) {
-            return
-        }
-
-        val channel = result.get()
-        channel.deactivate()
-        channelRepository.save(channel)
-    }
-
-    private fun activateChannel(
-        chatId: Long,
-        isPublic: Boolean,
-    ) {
-        val channelId = getChannelId(chatId)
-        val result = channelRepository.findById(channelId)
-
-        val channel = result.orElseGet { Channel(channelId, isPublic) }
-        channel.activate()
-        channelRepository.save(channel)
-    }
+    private fun getChannel(chatId: Long): Channel = Channel(IOResolver.TG_PREFIX + chatId)
 
     private fun handleSystemEvent(update: Update) {
-        if (isRemovedFromChannel(update)) {
-            deactivateChannel(update.myChatMember.chat.id)
+        if (isRemovedFromGroup(update)) {
+            bot.deactivateGroup(getChannel(update.myChatMember.chat.id))
 
             return
         }
 
-        if (isAddedToChannel(update)) {
-            activateChannel(
-                update.myChatMember.chat.id,
-                !update.myChatMember.chat.isUserChat,
-            )
+        if (isAddedToGroup(update)) {
+            bot.activateGroup(getChannel(update.myChatMember.chat.id))
         }
     }
 }

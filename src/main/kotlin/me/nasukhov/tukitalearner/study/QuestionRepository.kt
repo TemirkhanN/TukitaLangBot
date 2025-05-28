@@ -13,13 +13,13 @@ interface QuestionRepository : JpaRepository<Question, Long> {
         SELECT q FROM Question q
         WHERE NOT EXISTS (
             SELECT 1 FROM GroupQuestion gq
-            WHERE gq.question = q AND gq.channelId = :channelId
+            WHERE gq.question = q AND gq.group.id = :groupId
         )
         ORDER BY function('RANDOM')
         LIMIT 1
         """,
     )
     fun findUnseenRandom(
-        @Param("channelId") channelId: String,
+        @Param("groupId") groupId: String,
     ): Optional<Question>
 }

@@ -1,7 +1,7 @@
 package me.nasukhov.tukitalearner.study
 
-import me.nasukhov.tukitalearner.bot.io.Channel
 import me.nasukhov.tukitalearner.dictionary.DictionaryEntry
+import me.nasukhov.tukitalearner.study.Group
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.*
@@ -40,12 +40,12 @@ class ProgressTracker(
         learnedResourceRepository.saveAll(learnedWords)
     }
 
-    fun createRandomForChannel(channel: Channel): Optional<GroupQuestion> {
-        val question = questionRepository.findUnseenRandom(channel.id)
+    fun createRandomForGroup(group: Group): Optional<GroupQuestion> {
+        val question = questionRepository.findUnseenRandom(group.id)
 
         if (question.isEmpty) return Optional.empty()
 
-        val groupQuestion = GroupQuestion(channel, question.get())
+        val groupQuestion = GroupQuestion(group, question.get())
         return Optional.of(groupQuestionRepository.save(groupQuestion))
     }
 

@@ -55,7 +55,7 @@ class LearnWordTest {
 
     @Test
     fun handleUnsupportedInput() {
-        val channel = Channel("")
+        val channel = Channel("SomeChannelId")
         val user = User("SomeId", "SomeName")
         val input = Input("learn", channel, user)
 
@@ -66,7 +66,7 @@ class LearnWordTest {
 
     @Test
     fun handleWhenAllWordsAreLearned() {
-        val channel = Channel("")
+        val channel = Channel("SomeChannelId")
         val user = User("SomeId", "SomeName")
         val input = Input("/learn", channel, user)
 
@@ -80,7 +80,7 @@ class LearnWordTest {
 
     @Test
     fun handleNormally() {
-        val channel = Channel("")
+        val channel = Channel("SomeChannelId")
         val user = User("SomeId", "SomeName")
         val input = Input("/learn", channel, user)
 
@@ -89,9 +89,9 @@ class LearnWordTest {
         Mockito.verify(output).write(
             """
             гьой - собака
-            
+
             кету - кошка
-            
+
             рухья - дерево
             """.trimIndent(),
         )

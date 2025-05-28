@@ -13,6 +13,6 @@ class EventBus : Dispatcher {
 
     override fun signal(event: Object) {
         val eventId: Class<Any> = event.javaClass
-        subscribers.get(eventId)?.forEach({ it.handle(event) })
+        subscribers.get(eventId)?.forEach { it.handle(event) }
     }
 }

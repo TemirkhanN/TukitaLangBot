@@ -4,11 +4,10 @@ import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.Output
 import me.nasukhov.tukitalearner.study.GroupQuestionRepository
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.UUID
 
 @Component
 class AnswerQuestion(
-    private val askQuestion: AskQuestion,
     private val groupQuestionRepository: GroupQuestionRepository,
 ) : Handler {
     companion object {
@@ -27,17 +26,16 @@ class AnswerQuestion(
             return
         }
 
-        val channelQuestionId: UUID
+        val groupQuestionId: UUID
         try {
-            channelQuestionId = UUID.fromString(parts[2])
+            groupQuestionId = UUID.fromString(parts[2])
         } catch (_: IllegalArgumentException) {
             return
         }
 
-        val channel = input.channel
         val userId = input.sender.id
 
-        val result = groupQuestionRepository.findByIdWithAnswers(channelQuestionId)
+        val result = groupQuestionRepository.findByIdWithAnswers(groupQuestionId)
         if (result.isEmpty) {
             return
         }
@@ -54,9 +52,5 @@ class AnswerQuestion(
 
         val template: String = if (answer.isCorrect) ANSWER_CORRECT else ANSWER_INCORRECT
         output.write(String.format(template, input.sender.name, question.viewAnswer()))
-
-        if (!channel.isPublic) {
-            this.askQuestion.handle(input, output)
-        }
     }
 }

@@ -15,7 +15,7 @@ class ShareFact(
     override fun subscribesFor(): String = "share_fact"
 
     override fun runTask(task: Task) {
-        val channel = task.channel
+        val channel = task.getChannel()
         val fact: Optional<Fact> = progressTracker.nextRandomFact(Group(channel.id))
         fact.ifPresent {
             ioResolver.resolveFor(channel).write(it.text)

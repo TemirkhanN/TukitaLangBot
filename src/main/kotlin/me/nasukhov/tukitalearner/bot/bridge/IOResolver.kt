@@ -13,7 +13,7 @@ class IOResolver(
     private val serviceLocator: ApplicationContext,
 ) {
     fun resolveFor(channel: Channel): Output {
-        require(isTelegramChannel(channel)) {
+        require(isTelegramGroup(channel)) {
             "Channel interaction is not supported yet."
         }
 
@@ -25,6 +25,6 @@ class IOResolver(
     companion object {
         const val TG_PREFIX: String = "tg_"
 
-        private fun isTelegramChannel(channel: Channel): Boolean = channel.id.startsWith(TG_PREFIX)
+        private fun isTelegramGroup(channel: Channel): Boolean = channel.id.startsWith(TG_PREFIX)
     }
 }

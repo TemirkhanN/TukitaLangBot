@@ -6,6 +6,8 @@ import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.Output
 import me.nasukhov.tukitalearner.bot.io.User
 import me.nasukhov.tukitalearner.bot.task.TaskManager
+import me.nasukhov.tukitalearner.study.Group
+import me.nasukhov.tukitalearner.study.GroupRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -18,7 +20,11 @@ class BotTest {
     @BeforeEach
     fun setup() {
         output = Mockito.mock(Output::class.java)
-        bot = Bot(Mockito.mock(TaskManager::class.java), mutableListOf())
+        bot = Bot(
+            Mockito.mock(TaskManager::class.java),
+            Mockito.mock(GroupRepository::class.java),
+            mutableListOf()
+        )
     }
 
     @Test

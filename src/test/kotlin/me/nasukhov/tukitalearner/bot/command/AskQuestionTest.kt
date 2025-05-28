@@ -4,8 +4,10 @@ import me.nasukhov.tukitalearner.bot.io.Channel
 import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.Output
 import me.nasukhov.tukitalearner.bot.io.User
+import me.nasukhov.tukitalearner.study.Group
 import me.nasukhov.tukitalearner.study.GroupQuestion
 import me.nasukhov.tukitalearner.study.GroupQuestionRepository
+import me.nasukhov.tukitalearner.study.GroupRepository
 import me.nasukhov.tukitalearner.study.Question
 import me.nasukhov.tukitalearner.study.QuestionRepository
 import org.junit.jupiter.api.AfterEach
@@ -18,6 +20,8 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @SpringBootTest
 @Transactional
@@ -25,8 +29,10 @@ class AskQuestionTest(
     @Autowired private val handler: AskQuestion,
     @Autowired private val groupQuestionRepository: GroupQuestionRepository,
     @Autowired private val questionRepository: QuestionRepository,
+    @Autowired private val groupRepository: GroupRepository,
 ) {
     private lateinit var output: Output
+    private lateinit var group: Group
 
     companion object {
         private const val TEMPLATE_ASK_QUESTION = "qh answer %s %d"
@@ -36,6 +42,8 @@ class AskQuestionTest(
     fun setup() {
         output = Mockito.mock(Output::class.java)
 
+        group = Group("SomeGroup123")
+        groupRepository.save(group)
         questionRepository.save(
             Question(
                 "2+5 equals to",
@@ -52,11 +60,12 @@ class AskQuestionTest(
     @AfterEach
     fun reset() {
         questionRepository.deleteAll()
+        groupRepository.delete(group)
     }
 
     @Test
     fun handleAskWhenAllQuestionsAreAnswered() {
-        val channel = Channel("SomeChannelId")
+        val channel = Channel(group.id)
         val user = User("SomeId", "SomeName")
         val input = Input("/ask", channel, user)
 
@@ -64,26 +73,26 @@ class AskQuestionTest(
 
         handler.handle(input, output)
 
-        Assertions.assertTrue(groupQuestionRepository.findAll().isEmpty())
+        assertTrue(groupQuestionRepository.findAll().isEmpty())
         Mockito.verify(output).write("У нас пока нет новых вопросов. Проверьте позже")
     }
 
     @ParameterizedTest
     @ValueSource(strings = ["/ask", "/ask@botName"])
     fun handleAsk(rawInput: String) {
-        val channel = Channel("SomeChannelId")
+        val channel = Channel(group.id)
         val user = User("SomeId", "SomeName")
         val input = Input(rawInput, channel, user)
 
-        Assertions.assertTrue(groupQuestionRepository.findAll().isEmpty())
+        assertTrue(groupQuestionRepository.findAll().isEmpty())
 
         handler.handle(input, output)
 
         val allQuestions = groupQuestionRepository.findAll()
 
-        Assertions.assertEquals(1, allQuestions.size, "Expected one question")
+        assertEquals(1, allQuestions.size, "Expected one question")
         val groupQuestion: GroupQuestion = allQuestions.first()
-        Assertions.assertEquals("2+5 equals to", groupQuestion.text)
+        assertEquals("2+5 equals to", groupQuestion.text)
         Assertions.assertArrayEquals(
             arrayOf("thirteen", "seven", "twenty-one"),
             groupQuestion.listVariants().toTypedArray(),

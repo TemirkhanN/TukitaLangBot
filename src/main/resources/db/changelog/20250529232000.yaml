@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20250529-adjust-table-names
+      author: Temirkhan
+      changes:
+        - renameTable:
+            oldTableName: ch_question_replies
+            newTableName: answers
+        - renameTable:
+            oldTableName: channels
+            newTableName: groups
+        - renameTable:
+            oldTableName: ch_questions
+            newTableName: group_questions
+  - changeSet:
+      id: 20250529-remove-old-migration-table
+      author: Temirkhan
+      changes:
+        - dropTable:
+            tableName: application_version

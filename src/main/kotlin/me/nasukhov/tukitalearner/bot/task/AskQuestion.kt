@@ -2,6 +2,7 @@ package me.nasukhov.tukitalearner.bot.task
 
 import me.nasukhov.tukitalearner.bot.bridge.IOResolver
 import me.nasukhov.tukitalearner.bot.io.Channel
+import me.nasukhov.tukitalearner.study.GroupRepository
 import me.nasukhov.tukitalearner.study.ProgressTracker
 import me.nasukhov.tukitalearner.study.Time.isOffHours
 import org.springframework.stereotype.Component
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component
 @Component("askQuestionTask")
 class AskQuestion(
     private val progressTracker: ProgressTracker,
+    private val groupRepository: GroupRepository,
     private val ioResolver: IOResolver,
 ) : TaskRunner {
     override fun subscribesFor(): String = "ask_question"
@@ -21,11 +23,12 @@ class AskQuestion(
             return
         }
 
-        ask(task.channel)
+        ask(task.getChannel())
     }
 
     fun ask(channel: Channel) {
-        val result = progressTracker.createRandomForChannel(channel)
+        val group = groupRepository.findById(channel.id).get()
+        val result = progressTracker.createRandomForGroup(group)
         if (result.isEmpty) {
             return
         }

@@ -1,5 +1,0 @@
-CREATE TABLE channels (
-    id VARCHAR(32) PRIMARY KEY,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_public BOOLEAN
-);

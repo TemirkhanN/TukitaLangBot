@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/initial-schema.sql
+      # This changeset is already on production
+      ignore: true
+  - include:
+      file: db/changelog/20250529232000.yaml

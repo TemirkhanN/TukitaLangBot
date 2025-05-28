@@ -3,7 +3,7 @@ package me.nasukhov.tukitalearner.study
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "ch_question_replies")
+@Table(name = "answers")
 class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -11,10 +11,6 @@ class Answer {
 
     @Column(nullable = false, updatable = false)
     lateinit var userId: String
-        private set
-
-    @Column(nullable = false, updatable = false)
-    lateinit var channelId: String
         private set
 
     @ManyToOne
@@ -29,10 +25,9 @@ class Answer {
     // ORM necessity
     private constructor()
 
-    constructor(userId: String, channelId: String, question: GroupQuestion, answer: String) {
-        this.userId = userId
-        this.channelId = channelId
-        this.question = question
-        this.isCorrect = question.viewAnswer() == answer
+    internal constructor(answer: String, byUser: String, toQuestion: GroupQuestion) {
+        userId = byUser
+        question = toQuestion
+        isCorrect = question.viewAnswer() == answer
     }
 }

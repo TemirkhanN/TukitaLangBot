@@ -2,12 +2,15 @@ package me.nasukhov.tukitalearner.bot.command
 
 import me.nasukhov.tukitalearner.bot.io.Input
 import me.nasukhov.tukitalearner.bot.io.Output
+import me.nasukhov.tukitalearner.study.Group
+import me.nasukhov.tukitalearner.study.GroupRepository
 import me.nasukhov.tukitalearner.study.ProgressTracker
 import org.springframework.stereotype.Component
 
 @Component("askQuestionCommand")
 class AskQuestion(
     private val progressTracker: ProgressTracker,
+    private val groupRepository: GroupRepository,
 ) : Handler {
     companion object {
         private const val NO_MORE_QUESTIONS_LEFT = "У нас пока нет новых вопросов. Проверьте позже"
@@ -19,8 +22,8 @@ class AskQuestion(
         input: Input,
         output: Output,
     ) {
-        val channel = input.channel
-        val result = progressTracker.createRandomForChannel(channel)
+        val group: Group = groupRepository.findById(input.channel.id).get()
+        val result = progressTracker.createRandomForGroup(group)
 
         if (result.isEmpty) {
             // TODO share summary. reset progress

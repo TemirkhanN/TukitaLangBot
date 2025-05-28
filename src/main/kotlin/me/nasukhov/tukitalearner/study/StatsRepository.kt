@@ -15,13 +15,13 @@ interface StatsRepository : JpaRepository<Answer, Long> {
             COUNT(a)
         )
         FROM Answer a
-        WHERE a.channelId = :channelId
+        JOIN GroupQuestion gq
+        WHERE gq.group = :groupId
         GROUP BY a.userId
         ORDER BY COUNT(a) DESC
-        
         """,
     )
     fun getStatsForGroup(
-        @Param("channelId") channelId: String,
+        @Param("groupId") groupId: String,
     ): List<StudentStats>
 }

@@ -11,10 +11,8 @@ interface TaskRepository : JpaRepository<Task, Long> {
         """
     SELECT t
     FROM Task t
-    JOIN t.channel c
     WHERE t.nextExecutionAt <= CURRENT_TIMESTAMP
       AND t.isActive = true
-      AND c.isActive = true
     """,
     )
     fun getScheduledTasks(limit: Pageable): List<Task>

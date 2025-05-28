@@ -16,9 +16,8 @@ class Task {
     lateinit var name: String
         private set
 
-    @ManyToOne
-    lateinit var channel: Channel
-        private set
+    @Column(name = "channel_id", nullable = false, updatable = false)
+    private lateinit var channel: String
 
     @Column(nullable = false, name = "frequency")
     var frequencyInMinutes: Int = 0
@@ -40,7 +39,7 @@ class Task {
     constructor(name: String, frequencyInMinutes: Int, channel: Channel) {
         this.name = name
         this.frequencyInMinutes = frequencyInMinutes
-        this.channel = channel
+        this.channel = channel.id
         nextExecutionAt = LocalDateTime.now().plusMinutes(frequencyInMinutes.toLong())
     }
 
@@ -48,4 +47,6 @@ class Task {
         lastExecutedAt = time
         nextExecutionAt = nextExecutionAt.plusMinutes(frequencyInMinutes.toLong())
     }
+
+    fun getChannel() = Channel(channel)
 }
