@@ -3,7 +3,7 @@ package me.nasukhov.tukitalearner.study
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "group_questions")

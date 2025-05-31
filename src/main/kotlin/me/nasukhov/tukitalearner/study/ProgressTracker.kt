@@ -1,7 +1,6 @@
 package me.nasukhov.tukitalearner.study
 
 import me.nasukhov.tukitalearner.dictionary.DictionaryEntry
-import me.nasukhov.tukitalearner.study.Group
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.*

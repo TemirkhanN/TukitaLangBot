@@ -19,3 +19,4 @@
 .env.local
 .gradle
 build
+.kotlin

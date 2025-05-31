@@ -15,8 +15,9 @@ interface StatsRepository : JpaRepository<Answer, Long> {
             COUNT(a)
         )
         FROM Answer a
-        JOIN GroupQuestion gq
-        WHERE gq.group = :groupId
+        JOIN a.question gq
+        JOIN gq.group g
+        WHERE g.id = :groupId
         GROUP BY a.userId
         ORDER BY COUNT(a) DESC
         """,

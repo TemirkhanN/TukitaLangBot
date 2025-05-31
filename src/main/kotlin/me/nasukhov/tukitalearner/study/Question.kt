@@ -1,7 +1,7 @@
 package me.nasukhov.tukitalearner.study
 
 import jakarta.persistence.*
-import me.nasukhov.tukitalearner.db.StringListConverter
+import me.nasukhov.utility.db.StringListConverter
 import org.springframework.data.annotation.Immutable
 
 @Entity

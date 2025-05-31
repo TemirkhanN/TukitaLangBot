@@ -5,3 +5,5 @@ databaseChangeLog:
       ignore: true
   - include:
       file: db/changelog/20250529232000.yaml
+  - include:
+      file: db/changelog/20250531140200.yaml

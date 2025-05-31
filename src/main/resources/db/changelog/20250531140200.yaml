@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20250531-resourcetype-uppercase
+      author: Temirkhan
+      changes:
+        - update:
+            tableName: learned_resources
+            columns:
+              - column: {name: resource_type, valueComputed: "UPPER(resource_type)"}
+        - dropColumn:
+            tableName: answers
+            columns:
+              - column: {name: channel_id}

@@ -39,6 +39,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.liquibase:liquibase-core:4.24.0")
+    implementation("org.springframework.boot:spring-boot-starter-cache:3.5.0")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")

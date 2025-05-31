@@ -1,7 +1,7 @@
 package me.nasukhov.tukitalearner.config
 
+import me.nasukhov.bot.adapter.tg.Telegram
 import me.nasukhov.tukitalearner.Updater
-import me.nasukhov.tukitalearner.bot.bridge.tg.Telegram
 import org.springframework.boot.CommandLineRunner
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -12,7 +12,13 @@ import org.springframework.core.annotation.Order
 
 @Configuration
 @EnableCaching
-@ComponentScan(basePackages = ["me.nasukhov.tukitalearner"])
+@ComponentScan(
+    basePackages = [
+        "me.nasukhov.bot",
+        "me.nasukhov.utility",
+        "me.nasukhov.tukitalearner",
+    ],
+)
 class AppConfig {
     @Bean
     @Profile("!test")
@@ -22,8 +28,5 @@ class AppConfig {
     @Bean
     @Order(2)
     @Profile("!test")
-    fun createLauncher(telegram: Telegram): CommandLineRunner =
-        CommandLineRunner {
-            telegram.run()
-        }
+    fun createLauncher(telegram: Telegram): CommandLineRunner = CommandLineRunner { telegram.run() }
 }
